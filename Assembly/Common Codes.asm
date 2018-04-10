@@ -43,6 +43,15 @@ main proc
     INT 21h 
     
 
+	
+	;print a space
+    MOV DL, 032
+    MOV AH,2
+    INT 21h
+    
+
+	
+	
 
 
 
