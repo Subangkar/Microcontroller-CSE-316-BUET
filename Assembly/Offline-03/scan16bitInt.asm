@@ -1,6 +1,6 @@
-
 .model small
 
+.stack 100h
 
 .data
 
@@ -65,104 +65,6 @@ main proc
 main endp    
 
 end main
-
-
-
-
-
-
-
-
-
-
-; if-else
-
-CMP cond
-JMP IFC
-JMP ELSC
-
-IFC:
-
-JMP END_IF_ELS
-
-ELSC:
-
-END_IF_ELS:
-
-
-
-
-
-
-
-
-
-
-
-; if - else if - else
-
-CMP cond_if
-JMP IFC
-CMP cond_els_if
-JMP ELS_IFC
-JMP ELSC
-
-IFC:
-
-JMP END_IF_ELSIF_ELS
-
-ELS_IFC:
-
-JMP END_IF_ELSIF_ELS
-
-ELSC:
-
-END_IF_ELSIF_ELS:
-
-
-
-
-
-
-
-
-
-
-
-; LOOP
-
-MOV CX,n
-
-LOOP_LABEL:
-
-LOOP LOOP_LABEL
-
-
-
-
-
-
-
-
-
-
-
-
-
-; REPEAT
-
-LOOP_LABEL:
-
-CMP cond_loop
-JMP LOOP_LABEL
-
-
-
-
-
-
-
-
 
 
 
