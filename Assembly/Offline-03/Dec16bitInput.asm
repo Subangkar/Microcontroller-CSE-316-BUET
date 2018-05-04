@@ -4,12 +4,12 @@
 INDEC PROC
 ; this procedure will read a number in decimal form
 ; input : none
-; output : store binary number in AX
+; output : store binary number in AX , other READ char in DL
 ; uses : MAIN
 
   PUSH BX                        
   PUSH CX                        
-  PUSH DX                        
+  ;PUSH DX                        
 
   JMP @READ                      
 
@@ -47,7 +47,12 @@ INDEC PROC
 
   @SKIP_INPUT:                 ; exits or ignores ws
 
-    CMP AL, 0DH                  ; compare AL with CR
+    CMP AL, ' '                  ; compare AL with CR
+    XOR DL, DL                   ; DL = 0
+    JE @END_INPUT                
+
+    CMP AL, 'x'                  ; compare AL with CR
+    MOV DL, 'x'
     JE @END_INPUT                
 
     CMP AL, 8H                   ; compare AL with 8H
@@ -126,12 +131,12 @@ INDEC PROC
 
     XOR CH, CH                     ; clear CH
 
-  @CLEAR:                        
-    MOV DL, 8H                   
-    INT 21H                      
+;  @CLEAR:                        
+;    MOV DL, 8H                   
+;    INT 21H                      
 
-    CALL removeOneChar                  
-    LOOP @CLEAR                    
+;   CALL removeOneChar                  
+    ;   LOOP @CLEAR                    
 
     JMP @READ                      
 
@@ -145,7 +150,7 @@ INDEC PROC
 
     MOV AX, BX                     
 
-    POP DX                         
+    ;POP DX                         
     POP CX                         
     POP BX                         
 

@@ -6,6 +6,7 @@
 
 MSG DB ".....$"
 
+LIST DW 16 DUP(0)
 
 .code
 
@@ -15,42 +16,9 @@ main proc
     MOV AX,@DATA
     MOV DS,AX
     
-	; take input in AL affects AX
-    MOV AH,1
-    INT 21h
-	;MOV CL,AL
+
     
     
-
-    ; newline = AX , DL
-    MOV AH,2
-    MOV DL,0AH
-    INT 21h   
-    MOV DL,0DH
-    INT 21h 
-    
-    
-    ; output string affects AX,DX
-    LEA DX,MSG
-    MOV AH,9
-    INT 21h
-
-
-    ; newline = AX , DL
-    MOV AH,2
-    MOV DL,0AH
-    INT 21h   
-    MOV DL,0DH
-    INT 21h 
-    
-
-
-	;print a space
-    MOV DL, 032
-    MOV AH,2
-    INT 21h
-    
-
 	
 	
 
