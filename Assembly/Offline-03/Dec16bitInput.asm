@@ -34,8 +34,8 @@ INDEC PROC
     JMP @SKIP_INPUT                
 
   @MINUS:                        
-    MOV CH, 1                      
-    INC CL                         
+    MOV CH, 1                  ; CH=1 for - , 2 for - , 0 for nothing   
+    INC CL                     ; CL=1    
     JMP @INPUT                     
 
   @PLUS:                         
@@ -45,7 +45,7 @@ INDEC PROC
   @INPUT:                        
     CALL scanByteIn_AL                     
 
-  @SKIP_INPUT:                 
+  @SKIP_INPUT:                 ; exits or ignores ws
 
     CMP AL, 0DH                  ; compare AL with CR
     JE @END_INPUT                
@@ -74,13 +74,9 @@ INDEC PROC
     JE @REMOVE_PLUS_MINUS        
     JMP @MOVE_BACK               
 
-  @REMOVE_PLUS_MINUS:          
-    MOV AH, 2                  
-    MOV DL, 20H                ; set DL=\' \'
-    INT 21H                    
+  @REMOVE_PLUS_MINUS:          ; removes +/- sign by putting ' ' there & backspace
 
-    MOV DL, 8H                 
-    INT 21H                    
+    CALL removeOneChar                  
 
     JMP @READ                  
 
@@ -92,14 +88,9 @@ INDEC PROC
 
     MOV BX, AX                   
 
-    MOV AH, 2                    
-    MOV DL, 20H                  ; set DL=\' \'
-    INT 21H                      
+    CALL removeOneChar                    
 
-    MOV DL, 8H                   
-    INT 21H                      
-
-    XOR DX, DX                   
+    XOR DX, DX                   ; DX = 0
     DEC CL                       
 
     JMP @INPUT                   
@@ -139,18 +130,14 @@ INDEC PROC
     MOV DL, 8H                   
     INT 21H                      
 
-    MOV DL, 20H                  ; set DL=\' \'
-    INT 21H                      
-
-    MOV DL, 8H                   
-    INT 21H                      
+    CALL removeOneChar                  
     LOOP @CLEAR                    
 
     JMP @READ                      
 
   @END_INPUT:                    
 
-    CMP CH, 1                      
+    CMP CH, 1                      ; if neg
     JNE @EXIT                      
     NEG BX                         ; negate BX
 
@@ -176,3 +163,14 @@ scanByteIn_AL proc
     INT 21h
     RET
 scanByteIn_AL endp
+
+; Affects AX,DL
+removeOneChar proc
+    MOV AH, 2                    
+    MOV DL, ' '                  ; set DL=\' \'
+    INT 21H                      
+
+    MOV DL, 8H                   
+    INT 21H          
+    RET            
+removeOneChar endp
