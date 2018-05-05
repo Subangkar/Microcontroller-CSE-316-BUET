@@ -3,8 +3,10 @@
 
 INDEC PROC
 ; this procedure will read a number in decimal form
+; stops @ receiving x
 ; input : none
 ; output : store binary number in AX , other READ char in DL
+;           DL = 0 for space
 ; uses : MAIN
 
   PUSH BX                        
@@ -47,15 +49,30 @@ INDEC PROC
 
   @SKIP_INPUT:                 ; exits or ignores ws
 
-    CMP AL, ' '                  ; compare AL with CR
     XOR DL, DL                   ; DL = 0
+    CMP AL, ' '                  ; compare AL with CR
     JE @END_INPUT                
 
-    CMP AL, 'x'                  ; compare AL with CR
+    XOR DL, DL                   ; DL = 0
+    CMP AL, 10                  ; compare AL with \n
+    JE @END_INPUT                
+
+    XOR DL, DL                   ; DL = 0
+    CMP AL, 13                  ; compare AL with \r & print new line
+    JNE @NOT_PRINT_NEL_LINE
+    @PRINT_NEL_LINE :
+    CALL printNewline
+    JMP @END_INPUT                
+
+    @NOT_PRINT_NEL_LINE:
+
+
     MOV DL, 'x'
+    CMP AL, 'x'                  ; compare AL with CR
     JE @END_INPUT                
 
-    CMP AL, 8H                   ; compare AL with 8H
+    XOR DL, DL                   ; DL = 0
+    CMP AL, 08H                   ; compare AL with 8H
     JNE @NOT_BACKSPACE           
 
     CMP CH, 0                    
@@ -179,3 +196,21 @@ removeOneChar proc
     INT 21H          
     RET            
 removeOneChar endp
+
+
+; newline
+printNewline proc
+    PUSH AX
+    PUSH DX
+
+    ; newline = AX , DL
+    MOV AH,2
+    MOV DL,0AH
+    INT 21h   
+    MOV DL,0DH
+    INT 21h 
+
+    POP DX
+    POP AX
+    RET
+printNewline endp

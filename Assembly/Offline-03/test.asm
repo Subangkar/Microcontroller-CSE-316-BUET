@@ -31,108 +31,13 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/SelectionS
 
 ;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/ProcUtils.asm
 
+INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/scanIntArray.asm
 
-
-
-OUTDEC PROC
-; this procedure will display a decimal number
-; input : AX
-; output : none
-; uses : MAIN
-
-  PUSH BX                        
-  PUSH CX                        
-  PUSH DX                        
-
-  CMP AX, 0                      ; compare AX with 0
-  JGE @START                     ; jump to label @START if AX>=0
-
-  MOV DL, "-"                    ; set DL=\'-\'
-  CALL printByteIn_DL
-
-  NEG AX                         ; take 2\'s complement of AX
-
-  @START:                        ; jump label
-
-    XOR CX, CX                     ; CX counts number of digits
-    MOV BX, 10                     ; set BX=10
-
-  @OUTPUT:                       
-    XOR DX, DX                   ; clear DX
-    DIV BX                       ; divide AX by BX
-    PUSH DX                      ; push DX onto the STACK
-    INC CX                       
-    OR AX, AX                    ; take OR of Ax with AX
-    JNE @OUTPUT                    ; jump to label @OUTPUT if ZF=0
-
-  MOV AH, 2                      ; set output function
-
-  @DISPLAY:                      
-    POP DX                       
-    OR DL, 30H                   ; convert decimal to ascii code
-    INT 21H                      
-    LOOP @DISPLAY                  ; jump to label @DISPLAY if CX!=0
-
-  POP DX                         
-  POP CX                         
-  POP BX                         
-
-  RET                           
-OUTDEC ENDP
+INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/PRINTIntArray.asm
 
 
 
 
-
-
-
-
-
-PRINT_INT_DW_ARRAY PROC
-; this procedure will display a list of decimal numbers
-;input: SI = array offset address
-;       CX = number of elements
-; output : none
-; uses : OUTDEC
-
-    PUSH AX
-    PUSH CX
-    PUSH DX
-    PUSH SI
-    
-    @PRINT_INT_DW_ARRAY_PRINT:
-        MOV AX,[SI]
-        CALL OUTDEC
-        INC SI
-        INC SI
-
-        ;print a space
-        MOV DL, ' '
-        MOV AH,2
-        INT 21h
-    LOOP @PRINT_INT_DW_ARRAY_PRINT
-
-    POP SI
-    POP DX
-    POP CX
-    POP AX
-PRINT_INT_DW_ARRAY ENDP
-
-
-
-
-
-
-; prints the Byte in DL
-printByteIn_DL proc
-    PUSH AX
-
-    MOV AH,2
-    INT 21h
-
-    POP AX    
-    RET
-printByteIn_DL endp
 
 
 main proc
@@ -154,14 +59,27 @@ main proc
     
     ;call SELECT
 
+
+
+
     MOV CX,5
     LEA SI,ARR
+    MOV AL,'x'
+    CALL SCAN_INT_DW_ARRAY
+    
+    MOV AH,2
+    MOV DL, 0DH
+    INT 21H
+    MOV DL, 0AH
+    INT 21H
+
+    
     CALL PRINT_INT_DW_ARRAY
 
 
     ;MOV AX,[DI]
     MOV DL,[SI]
-    call printByteIn_DL
+    ;call printByteIn_DL
 
 
 main endp

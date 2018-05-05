@@ -1,23 +1,3 @@
-
-
-
-
-
-
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
-
-
-;OUTDEC PROC
-; this procedure will display a decimal number
-; input : AX
-; output : none
-; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
-
-
-
-
-
 PRINT_INT_DW_ARRAY PROC
 ; this procedure will display a list of decimal numbers
 ;input: SI = array offset address
@@ -46,5 +26,26 @@ PRINT_INT_DW_ARRAY PROC
     POP DX
     POP CX
     POP AX
+    RET
 PRINT_INT_DW_ARRAY ENDP
+
+
+
+
+
+
+
+;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+
+
+;OUTDEC PROC
+; this procedure will display a decimal number
+; input : AX
+; output : none
+; uses : MAIN
+INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+
+
+
+
 
