@@ -6,7 +6,7 @@
 
 INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
 
 
 

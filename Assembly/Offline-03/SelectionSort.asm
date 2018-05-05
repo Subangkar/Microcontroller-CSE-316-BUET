@@ -11,32 +11,33 @@ SELECT  PROC
         DEC     BX        ;N = N-1              
         JE      END_SORT  ;exit if 1-elt array
         MOV     DX,SI     ;save array offset
-;for n-1 times do
-    SORT_LOOP:      
-        MOV     SI,DX     ;SI pts to array
-        MOV     CX,BX     ;no. of comparisons to make
-        MOV     DI,SI     ;DI pts to largest element
-        MOV     AL,[DI]   ;AL has largest element
-;locate biggest of remaining elts
-FIND_BIG:
-        INC     SI        ;SI pts to next element               
-        CMP     [SI],AL   ;is new element > largest?                   
-        JNG     NEXT      ;no, go on
-        MOV     DI,SI     ;yes, move DI
-        MOV     AL,[DI]   ;AL has largest element
-NEXT:         
-        LOOP    FIND_BIG  ;loop until done      
-;swap biggest elt with last elt
+        ;for n-1 times do
+        SORT_LOOP:      
+                MOV     SI,DX     ;SI pts to array
+                MOV     CX,BX     ;no. of comparisons to make
+                MOV     DI,SI     ;DI pts to largest element
+                MOV     AL,[DI]   ;AL has largest element
+        ;locate biggest of remaining elts
+        FIND_BIG:
+                INC     SI        ;SI pts to next element               
+                CMP     [SI],AL   ;is new element > largest?                   
+                JNG     NEXT      ;no, go on
+                MOV     DI,SI     ;yes, move DI
+                MOV     AL,[DI]   ;AL has largest element
+        NEXT:         
+                LOOP    FIND_BIG  ;loop until done      
+        ;swap biggest elt with last elt
         CALL    SWAP      ;Swap with last elt
         DEC     BX        ;N = N-1                      
         JNE     SORT_LOOP ;repeat if N <> 0             
-END_SORT:       
-        POP     SI
-        POP     DX
-        POP     CX
-        POP     BX
+        END_SORT:       
+                POP     SI
+                POP     DX
+                POP     CX
+                POP     BX
         RET
 SELECT  ENDP
+
 SWAP    PROC
 ;swaps two array elements
 ;input: SI = one element
