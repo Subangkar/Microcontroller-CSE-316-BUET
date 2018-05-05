@@ -10,7 +10,7 @@ Z DB 1
 LIST1 DB 5,-5,7,3,8,-1
 LIST1_LEN DW ($-LIST1)
 
-ARR DW 11,45,46,55,95
+ARR DW 11,45,46,-55,95
 LEN DW ($-ARR)/2
 KEY EQU 46
 ARR2 DB 35,78,90
@@ -33,7 +33,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/SelectionS
 
 INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/scanIntArray.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/PRINTIntArray.asm
+INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/printIntArray.asm
 
 
 
@@ -62,18 +62,23 @@ main proc
 
 
 
-    MOV CX,5
-    LEA SI,ARR
-    MOV AL,'x'
-    CALL SCAN_INT_DW_ARRAY
+    ;MOV CX,5
+    ;LEA SI,ARR
+    ;MOV AL,'x'
+    ;CALL SCAN_INT_DW_ARRAY
     
+
     MOV AH,2
     MOV DL, 0DH
     INT 21H
     MOV DL, 0AH
     INT 21H
 
+    MOV BX,5
+    LEA SI,ARR
+    CALL SELECT
     
+    MOV CX,5
     CALL PRINT_INT_DW_ARRAY
 
 
