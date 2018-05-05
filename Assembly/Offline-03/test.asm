@@ -1,15 +1,33 @@
 .MODEL SMALL
 .STACK
 .DATA
+
+X DB 5
+Y DB 7
+Z DB 1
+
+
 ARR DW 11,45,46,55,95
 LEN DW ($-ARR)/2
 KEY EQU 46
-MSG1 DB "KEY IS FOUND AT "
+ARR2 DB 35,78,90
+MSG1 DB 'KEY IS FOUND AT'
 RES DB " POSITION",13,10,"$"
 MSG2 DB 'KEY NOT FOUND!!!!!!!!!!!!!. $'
 
 .CODE
 
+; initialize Data Segment = AX
+MOV AX,@DATA
+MOV DS,AX
+
+
+MOV AX,WORD PTR Y
+
+
 main proc
-    
+
+
+
+
 main endp
