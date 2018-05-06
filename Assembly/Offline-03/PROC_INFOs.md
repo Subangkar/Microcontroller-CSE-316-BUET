@@ -1,11 +1,11 @@
 ; BIN_SEARCH PROC
-;search in a sorted array by the binary search method
-;input: SI = array offset address
+; search in a sorted array by the binary search method
+; input: SI = array offset address
 ;       BX = number of elements
 ;       CX = key
-;output: SI = offset of sorted array
+; output: SI = offset of sorted array
 ;        AX = pos @where key has been found
-;uses:
+; uses:
 INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
 
 
@@ -52,12 +52,12 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/PrintIntArray.asm
 
 ; SCAN_INT_DW_ARRAY PROC
 ; this procedure will input a list of decimal numbers
-; input: SI = array offset address where to store
-;       CX = number of elements at most to scan
-;       AL = stop instant @ receiving @char
+; input:    SI = array offset address where to store
+;           CX = number of elements at most to scan
+;           AL = stop instant @ receiving @char
 ; output :  CX = number of elements scanned
 ;           SI = array offset address where to store       
-; uses : OUTDEC
+; uses : INDEC
 INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ScanIntArray.asm
 
 

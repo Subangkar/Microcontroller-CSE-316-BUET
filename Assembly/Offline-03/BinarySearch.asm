@@ -19,12 +19,12 @@ BIN_SEARCH PROC
     MOV BX,0    ; BX = lIndex
 
 
-    @START_BIN_SEARCH:
+    @START_BIN_SEARCH: ; BX=l,AX=m,DX=r
         CMP BX,DX ; exit when lIndex > rIndex
         JA @NOT_FOUND_BIN_SEARCH
         MOV AX,BX
         ADD AX,DX ; AX=BX+DX
-        SHR AX,1 ; AX = midIndex
+        SHR AX,1 ; AX = midIndex ; m=(l+r)/2
 
         ;MOV SI,AX
         ;ADD SI,SI
@@ -32,18 +32,18 @@ BIN_SEARCH PROC
         ADD DI,AX
         ADD DI,AX
         CMP CX,[DI]
-        JGE @BIG_PIVOT_BIN_SEARCH
+        JE @FOUND_BIN_SEARCH            
+        JG @BIG_PIVOT_BIN_SEARCH
         JMP @SMALL_PIVOT_BIN_SEARCH
 
         @BIG_PIVOT_BIN_SEARCH:
-            JE @FOUND_BIN_SEARCH
-            INC AX
-            MOV BX,AX
+            INC AX 
+            MOV BX,AX ; l=m+1
             JMP @START_BIN_SEARCH
 
         @SMALL_PIVOT_BIN_SEARCH:
             DEC AX
-            MOV DX,AX
+            MOV DX,AX ; r=m-1
             JMP @START_BIN_SEARCH
 
 
