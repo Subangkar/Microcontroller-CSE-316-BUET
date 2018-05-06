@@ -21,11 +21,11 @@ BIN_SEARCH PROC
 
     @START_BIN_SEARCH: ; BX=l,AX=m,DX=r
         CMP BX,DX ; exit when lIndex > rIndex
-        JA @NOT_FOUND_BIN_SEARCH
+        JG @NOT_FOUND_BIN_SEARCH
         MOV AX,BX
         ADD AX,DX ; AX=BX+DX
         SHR AX,1 ; AX = midIndex ; m=(l+r)/2
-
+        
         ;MOV SI,AX
         ;ADD SI,SI
         MOV DI,SI
