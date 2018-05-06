@@ -60,9 +60,9 @@ SCAN_INT_DW_ARRAY ENDP
 ; input : none
 ; output : store binary number in AX , other READ char in DL
 ; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitInput.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitOutput.asm
 
 
 

@@ -6,7 +6,7 @@
 ;output: SI = offset of sorted array
 ;        AX = pos @where key has been found
 ;uses:
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/BinarySearch.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
 
 
 
@@ -19,7 +19,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/BinarySear
 ; output : store binary number in AX , other READ char in DL
 ;           DL = 0 for space
 ; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitInput.asm
 
 
 
@@ -31,7 +31,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitIn
 ; input : AX
 ; output : none
 ; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitOutput.asm
 
 
 
@@ -40,11 +40,11 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOu
 
 ; PRINT_INT_DW_ARRAY PROC
 ; this procedure will display a list of decimal numbers
-; input: SI = array offset address
-;       CX = number of elements
+; input:    SI = array offset address
+;           CX = number of elements
 ; output : none
 ; uses : OUTDEC
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/PrintIntArray.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/PrintIntArray.asm
 
 
 
@@ -58,7 +58,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/PrintIntAr
 ; output :  CX = number of elements scanned
 ;           SI = array offset address where to store       
 ; uses : OUTDEC
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/ScanIntArray.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ScanIntArray.asm
 
 
 
@@ -70,5 +70,5 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/ScanIntArr
 ;       BX = number of elements
 ;output: SI = offset of sorted array
 ;uses:  SWAP
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/SelectionSort.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
 

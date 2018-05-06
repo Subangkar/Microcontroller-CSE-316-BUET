@@ -18,7 +18,7 @@ KEY DW 94
 ;output: SI = offset of sorted array
 ;        AX = pos @where key has been found
 ;uses:  
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/BinarySearch.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
 
 
 
@@ -29,7 +29,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/BinarySear
 ; input : AX
 ; output : none
 ; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitInput.asm
 
 
 

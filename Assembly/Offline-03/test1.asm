@@ -12,26 +12,26 @@ L DB 5,4,3,2,1
 
 
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitInput.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitOutput.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/SelectionSort.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/ProcUtils.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ProcUtils.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/PRINTIntArray.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/PRINTIntArray.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/scanIntArray.asm
-
-
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/scanIntArray.asm
 
 
 
 
 
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/printIntArray.asm
+
+
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/printIntArray.asm
 
 
 

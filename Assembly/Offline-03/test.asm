@@ -23,17 +23,17 @@ MSG2 DB 'KEY NOT FOUND!!!!!!!!!!!!!. $'
 
 
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitInput.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitOutput.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/SelectionSort.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
 
-;INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/ProcUtils.asm
+;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ProcUtils.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/scanIntArray.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/scanIntArray.asm
 
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/printIntArray.asm
+INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/printIntArray.asm
 
 
 
@@ -57,7 +57,7 @@ main proc
     MOV CX,5
     LEA SI,ARR
     MOV AL,'x'
-    CALL SCAN_INT_DW_ARRAY
+    ;CALL SCAN_INT_DW_ARRAY
     
 
     MOV AH,2
