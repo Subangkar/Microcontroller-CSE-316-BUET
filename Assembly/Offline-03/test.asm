@@ -48,14 +48,6 @@ main proc
 
     ;MOV AX,WORD PTR Y
 
-    ;LEA DI,LIST1
-
-    ;INC DI
-    ;INC DI
-    ;INC DI
-
-    ;LEA SI,LIST1
-    ;MOV BX,6
     
     ;call SELECT
 

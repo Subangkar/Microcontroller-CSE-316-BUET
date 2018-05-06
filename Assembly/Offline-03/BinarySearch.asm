@@ -1,48 +1,68 @@
-;binary search
+BIN_SEARCH PROC
+;search in a sorted array by the binary search method
+;input: SI = array offset address
+;       BX = number of elements
+;       CX = key
+;output: SI = offset of sorted array
+;        AX = pos @where key has been found
+;uses:
+    ;PUSH AX
+    PUSH BX
+    PUSH CX
+    PUSH DX
+    PUSH SI
+    PUSH DI
+    
+    
+    MOV DX,BX   ; DX = rIndex
+    DEC DX 
+    MOV BX,0    ; BX = lIndex
 
-.MODEL SMALL
-.STACK
-.DATA
-ARR DW 0111H,0112H,0113H,0114H,0115H
-LEN DW ($-ARR)/2
-KEY EQU 0116H
-MSG1 DB "KEY IS FOUND AT "
-RES DB " POSITION",13,10,"$"
-MSG2 DB 'KEY NOT FOUND!!!!!!!!!!!!!. $'
 
-.CODE
-MOV AX,@DATA
-MOV DS,AX
-MOV BX,00
-MOV DX,LEN
-MOV CX,KEY
+    @START_BIN_SEARCH:
+        CMP BX,DX ; exit when lIndex > rIndex
+        JA @NOT_FOUND_BIN_SEARCH
+        MOV AX,BX
+        ADD AX,DX ; AX=BX+DX
+        SHR AX,1 ; AX = midIndex
 
-AGAIN:CMP BX,DX
-JA FAIL
-MOV AX,BX
-ADD AX,DX
-SHR AX,1
-MOV SI,AX
-ADD SI,SI
-CMP CX,ARR[SI]
-JAE BIG
-DEC AX
-MOV DX,AX
-JMP AGAIN
+        ;MOV SI,AX
+        ;ADD SI,SI
+        MOV DI,SI
+        ADD DI,AX
+        ADD DI,AX
+        CMP CX,[DI]
+        JGE @BIG_PIVOT_BIN_SEARCH
+        JMP @SMALL_PIVOT_BIN_SEARCH
 
-BIG:JE SUCCESS
-INC AX
-MOV BX,AX
-JMP AGAIN
+        @BIG_PIVOT_BIN_SEARCH:
+            JE @FOUND_BIN_SEARCH
+            INC AX
+            MOV BX,AX
+            JMP @START_BIN_SEARCH
 
-SUCCESS:ADD AL,01
-ADD AL,'0'
-MOV RES,AL
-LEA DX,MSG1
-JMP DISP
+        @SMALL_PIVOT_BIN_SEARCH:
+            DEC AX
+            MOV DX,AX
+            JMP @START_BIN_SEARCH
 
-FAIL:LEA DX,MSG2
 
-DISP:MOV AH,09H
-INT 21H
-MOV AH,4CH 
+    @NOT_FOUND_BIN_SEARCH:
+        ;MOV AX,-1
+        JMP @END_BIN_SEARCH
+
+    @FOUND_BIN_SEARCH: ; index already in AX
+        ;ADD AL,01
+        JMP @END_BIN_SEARCH
+
+
+    @END_BIN_SEARCH:
+        POP DI
+        POP SI
+        POP DX
+        POP CX
+        POP BX
+        ;POP AX
+    RET
+BIN_SEARCH ENDP
+
