@@ -31,7 +31,7 @@ MSG_END DB "Thank you :)$"
 ; output: SI = offset of sorted array
 ;        AX = pos @where key has been found
 ; uses:
-INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
+INCLUDE BinarySearch.asm
 
 
 ; INDEC PROC
@@ -53,7 +53,7 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
 ; input : AX
 ; output : none
 ; uses : MAIN
-;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/Dec16bitOutput.asm
+;INCLUDE Dec16bitOutput.asm
 
 
 
@@ -66,7 +66,7 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/BinarySearch.asm
 ;       BX = number of elements
 ;output: SI = offset of sorted array
 ;uses:  SWAP
-INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
+INCLUDE SelectionSort.asm
 
 
 
@@ -81,7 +81,7 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
 ; output :  CX = number of elements scanned
 ;           SI = array offset address where to store       
 ; uses : INDEC
-INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ScanIntArray.asm
+INCLUDE ScanIntArray.asm
 
 
 
@@ -93,7 +93,7 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/ScanIntArray.asm
 ;           CX = number of elements
 ; output : none
 ; uses : OUTDEC
-INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/PrintIntArray.asm
+INCLUDE PrintIntArray.asm
 
 
 
@@ -105,7 +105,7 @@ INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/PrintIntArray.asm
 ;       BX = number of elements
 ;output: SI = offset of sorted array
 ;uses:  SWAP
-;INCLUDE C:/users/subangkar/Desktop/MIC/Assembly/Offline-03/SelectionSort.asm
+;INCLUDE SelectionSort.asm
 
 
 
