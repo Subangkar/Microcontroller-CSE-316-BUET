@@ -44,7 +44,9 @@ main proc
     MOV BX,5
     MOV CX,KEY
 
-    CALL BIN_SEARCH
+
+
+    CALL INDEC
 
     CALL OUTDEC
 

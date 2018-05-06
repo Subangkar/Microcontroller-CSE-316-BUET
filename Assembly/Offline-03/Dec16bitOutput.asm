@@ -15,7 +15,7 @@ OUTDEC PROC
   JGE @START                     ; jump to label @START if AX>=0
 
   MOV DL, "-"                    ; set DL=\'-\'
-  CALL printByteIn_DL
+  CALL OUTDEC_printByteIn_DL
 
   NEG AX                         ; take 2\'s complement of AX
 
@@ -51,12 +51,12 @@ OUTDEC ENDP
 
 
 ; prints the Byte in DL
-printByteIn_DL proc
-    PUSH AX
+OUTDEC_printByteIn_DL proc
+  PUSH AX
 
-    MOV AH,2
-    INT 21h
+  MOV AH,2
+  INT 21h
 
-    POP AX    
-    RET
-printByteIn_DL endp
+  POP AX    
+  RET
+OUTDEC_printByteIn_DL endp

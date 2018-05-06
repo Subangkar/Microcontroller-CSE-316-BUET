@@ -25,7 +25,7 @@ INDEC PROC
     XOR CX, CX                     
     XOR DX, DX                     
 
-    CALL scanByteIn_AL                       
+    CALL INDEC_scanByteIn_AL                       
 
     CMP AL, "-"                    ; negative
     JE @MINUS                      
@@ -45,7 +45,7 @@ INDEC PROC
     INC CL                         
 
   @INPUT:                        
-    CALL scanByteIn_AL                     
+    CALL INDEC_scanByteIn_AL                     
 
   @SKIP_INPUT:                 ; exits or ignores ws
 
@@ -61,7 +61,7 @@ INDEC PROC
     CMP AL, 13                  ; compare AL with \r & print new line
     JNE @NOT_PRINT_NEL_LINE
     @PRINT_NEL_LINE :
-    CALL printNewline
+    CALL INDEC_printNewline
     JMP @END_INPUT                
 
     @NOT_PRINT_NEL_LINE:
@@ -98,7 +98,7 @@ INDEC PROC
 
   @REMOVE_PLUS_MINUS:          ; removes +/- sign by putting ' ' there & backspace
 
-    CALL removeOneChar                  
+    CALL INDEC_removeOneChar                  
 
     JMP @READ                  
 
@@ -110,7 +110,7 @@ INDEC PROC
 
     MOV BX, AX                   
 
-    CALL removeOneChar                    
+    CALL INDEC_removeOneChar                    
 
     XOR DX, DX                   ; DX = 0
     DEC CL                       
@@ -152,7 +152,7 @@ INDEC PROC
 ;    MOV DL, 8H                   
 ;    INT 21H                      
 
-;   CALL removeOneChar                  
+;   CALL INDEC_removeOneChar                  
     ;   LOOP @CLEAR                    
 
     JMP @READ                      
@@ -179,15 +179,15 @@ INDEC ENDP
 
 
 ; take input in AL affects AX
-scanByteIn_AL proc
+INDEC_scanByteIn_AL proc
 	; take input in AL affects AX
     MOV AH,1
     INT 21h
     RET
-scanByteIn_AL endp
+INDEC_scanByteIn_AL endp
 
 ; Affects AX,DL
-removeOneChar proc
+INDEC_removeOneChar proc
     MOV AH, 2                    
     MOV DL, ' '                  ; set DL=\' \'
     INT 21H                      
@@ -195,11 +195,11 @@ removeOneChar proc
     MOV DL, 8H                   
     INT 21H          
     RET            
-removeOneChar endp
+INDEC_removeOneChar endp
 
 
 ; newline
-printNewline proc
+INDEC_printNewline proc
     PUSH AX
     PUSH DX
 
@@ -213,4 +213,4 @@ printNewline proc
     POP DX
     POP AX
     RET
-printNewline endp
+INDEC_printNewline endp
