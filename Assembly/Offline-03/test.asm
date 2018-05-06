@@ -54,10 +54,10 @@ main proc
 
 
 
-    ;MOV CX,5
-    ;LEA SI,ARR
-    ;MOV AL,'x'
-    ;CALL SCAN_INT_DW_ARRAY
+    MOV CX,5
+    LEA SI,ARR
+    MOV AL,'x'
+    CALL SCAN_INT_DW_ARRAY
     
 
     MOV AH,2

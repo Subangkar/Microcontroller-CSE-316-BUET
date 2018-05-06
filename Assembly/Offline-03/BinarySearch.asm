@@ -48,7 +48,7 @@ BIN_SEARCH PROC
 
 
     @NOT_FOUND_BIN_SEARCH:
-        ;MOV AX,-1
+        MOV AX,-1
         JMP @END_BIN_SEARCH
 
     @FOUND_BIN_SEARCH: ; index already in AX

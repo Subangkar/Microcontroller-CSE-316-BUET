@@ -29,7 +29,7 @@ INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/BinarySear
 ; input : AX
 ; output : none
 ; uses : MAIN
-INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitOutput.asm
+INCLUDE C:/users/subangkar/Desktop/Microprocessor/Assembly/Offline-03/Dec16bitInput.asm
 
 
 
