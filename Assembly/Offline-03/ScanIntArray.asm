@@ -11,35 +11,43 @@ SCAN_INT_DW_ARRAY PROC
     ;PUSH CX
     PUSH DX
     PUSH SI
+    PUSH DI
     
     MOV BH,AL ; store the exit char
-    XOR AX,AX ; set AX=0 to count number of elements
+    ;XOR AX,AX ; set AX=0 to count number of elements
+    XOR DX,DX ; set DX=0 to count number of elements
+    
 
     @PRINT_INT_DW_ARRAY_SCAN:
         
-        PUSH AX ; new input will be @AX AX=count=>Stack
-        
+    ;    PUSH AX ; new input will be @AX AX=count=>Stack
         CALL INDEC ; input => AX InvalidExitChar/ValidNumLength => DL
         XOR DL,BH ; compare with exit char & exit on matching
         JZ @END_INPUT_PRINT_INT_DW_ARRAY_SCAN
-        POP AX
+    ;    POP AX
 
+        CMP DL,0    ; test the exit char
+        JE @SCANNED_WS
+        JG @SCANNED_ASCII
         @SCANNED_INTEGER:
             MOV [SI],AX 
-            ;DEC CX
-            INC AX
-
+            DEC CX
+            ;INC AX
+            INC DI
+            
             INC SI
             INC SI
+        @SCANNED_ASCII:
         @SCANNED_WS:            
     ;OR CX,CX
-    ;CMP CX,0
-    JNZ @PRINT_INT_DW_ARRAY_SCAN
+    CMP CX,0
+    JG @PRINT_INT_DW_ARRAY_SCAN
 
     @END_INPUT_PRINT_INT_DW_ARRAY_SCAN:
-        POP AX
-        MOV CX,AX
+        ;POP AX
+        MOV CX,DI
 
+        POP DI
         POP SI
         POP DX
         ;POP CX
