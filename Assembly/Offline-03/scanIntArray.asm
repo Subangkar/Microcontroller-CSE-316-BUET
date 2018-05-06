@@ -26,16 +26,16 @@ SCAN_INT_DW_ARRAY PROC
 ;        POP AX
         XOR DL,BH ; compare with exit char & exit on matching
         JZ @END_INPUT_PRINT_INT_DW_ARRAY_SCAN
-
-        MOV [SI],AX 
-        DEC CX
-        
         POP AX
-        INC AX
 
-        INC SI
-        INC SI
+        @SCANNED_INTEGER:
+            MOV [SI],AX 
+            DEC CX
+            INC AX
 
+            INC SI
+            INC SI
+        @SCANNED_WS:            
     ;OR CX,CX
     CMP CX,0
     JNZ @PRINT_INT_DW_ARRAY_SCAN

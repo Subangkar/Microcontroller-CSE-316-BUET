@@ -15,6 +15,7 @@ INDEC PROC
   PUSH CX ;CH=sign,CL=scanned length inc +/-                
   ;PUSH DX                        
 
+  XOR DL, DL                   ; DL=CL=0 if WS, DL=CL=len if num else DL=ascii
   JMP @READ                      
 
   @SKIP_BACKSPACE:               
@@ -50,15 +51,12 @@ INDEC PROC
   @SKIP_INPUT:                 ; exits or ignores ws or put digit
 
     @CHECK_WS:  ; if WS set DL=0 & finish input
-      XOR DL, DL                   ; DL = 0
       CMP AL, ' '                  ; compare AL with CR
       JE @END_INPUT                
 
-      XOR DL, DL                   ; DL = 0
       CMP AL, 10                  ; compare AL with \n
       JE @END_INPUT                
 
-      XOR DL, DL                   ; DL = 0
       CMP AL, 13                  ; compare AL with \r & print new line
       JNE @NOT_PRINT_NEL_LINE
     @PRINT_NEL_LINE :
@@ -68,7 +66,6 @@ INDEC PROC
   @NOT_PRINT_NEL_LINE:
 
 
-    XOR DL, DL                   ; DL = 0
     CMP AL, 08H                   ; compare AL with 8H
     JNE @NOT_BACKSPACE           
 
@@ -129,7 +126,7 @@ INDEC PROC
     JG @ERROR                    
 
     AND AX, 000FH                ; convert ascii to decimal code
-
+                                 ; add current digit to num
     PUSH AX                      
 
     MOV AX, 10                   
@@ -145,16 +142,15 @@ INDEC PROC
     MOV DL,AL                   ; put non digit char in DL always +ve
     JMP @EXIT
 
-  @END_INPUT:                    
+  @END_INPUT:                   ; END of valid input 
+    MOV DL,CL                      ; set (-ve) of number length to DL
+    NEG DL
 
     CMP CH, 1                      ; if neg
     JNE @EXIT                      
     NEG BX                         ; negate BX
-    MOV DL,CL
-    NEG DL
 
   @EXIT:                         
-
     MOV AX, BX                     
 
     ;POP DX                         
