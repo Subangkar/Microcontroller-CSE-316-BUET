@@ -2,3 +2,8 @@
 
 *.driveupload
 *.ini
+
+
+
+*.pdsbak
+*.workspace
