@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "DotMatrix", "DotMatrix\DotMatrix.cproj", "{4D213F4B-00CD-4552-AECC-FE0AF1D65349}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|AVR = Debug|AVR
+		Release|AVR = Release|AVR
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4D213F4B-00CD-4552-AECC-FE0AF1D65349}.Debug|AVR.ActiveCfg = Debug|AVR
+		{4D213F4B-00CD-4552-AECC-FE0AF1D65349}.Debug|AVR.Build.0 = Debug|AVR
+		{4D213F4B-00CD-4552-AECC-FE0AF1D65349}.Release|AVR.ActiveCfg = Release|AVR
+		{4D213F4B-00CD-4552-AECC-FE0AF1D65349}.Release|AVR.Build.0 = Release|AVR
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal

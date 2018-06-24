@@ -1,0 +1,317 @@
+
+DotMatrix.elf:     file format elf32-avr
+
+Sections:
+Idx Name          Size      VMA       LMA       File off  Algn
+  0 .text         00000180  00000000  00000000  00000094  2**1
+                  CONTENTS, ALLOC, LOAD, READONLY, CODE
+  1 .data         000001a0  00800060  00000180  00000214  2**0
+                  CONTENTS, ALLOC, LOAD, DATA
+  2 .bss          00000008  00800200  00800200  000003b4  2**0
+                  ALLOC
+  3 .comment      00000030  00000000  00000000  000003b4  2**0
+                  CONTENTS, READONLY
+  4 .debug_aranges 00000038  00000000  00000000  000003e4  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  5 .debug_info   000002bf  00000000  00000000  0000041c  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  6 .debug_abbrev 00000185  00000000  00000000  000006db  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  7 .debug_line   000001ac  00000000  00000000  00000860  2**0
+                  CONTENTS, READONLY, DEBUGGING
+  8 .debug_frame  0000008c  00000000  00000000  00000a0c  2**2
+                  CONTENTS, READONLY, DEBUGGING
+  9 .debug_str    000001bb  00000000  00000000  00000a98  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 10 .debug_loc    00000266  00000000  00000000  00000c53  2**0
+                  CONTENTS, READONLY, DEBUGGING
+ 11 .debug_ranges 00000028  00000000  00000000  00000eb9  2**0
+                  CONTENTS, READONLY, DEBUGGING
+
+Disassembly of section .text:
+
+00000000 <__vectors>:
+   0:	0c 94 2a 00 	jmp	0x54	; 0x54 <__ctors_end>
+   4:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+   8:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+   c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  10:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  14:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  18:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  1c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  20:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  24:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  28:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  2c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  30:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  34:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  38:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  3c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  40:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  44:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  48:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  4c:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+  50:	0c 94 47 00 	jmp	0x8e	; 0x8e <__bad_interrupt>
+
+00000054 <__ctors_end>:
+  54:	11 24       	eor	r1, r1
+  56:	1f be       	out	0x3f, r1	; 63
+  58:	cf e5       	ldi	r28, 0x5F	; 95
+  5a:	d8 e0       	ldi	r29, 0x08	; 8
+  5c:	de bf       	out	0x3e, r29	; 62
+  5e:	cd bf       	out	0x3d, r28	; 61
+
+00000060 <__do_copy_data>:
+  60:	12 e0       	ldi	r17, 0x02	; 2
+  62:	a0 e6       	ldi	r26, 0x60	; 96
+  64:	b0 e0       	ldi	r27, 0x00	; 0
+  66:	e0 e8       	ldi	r30, 0x80	; 128
+  68:	f1 e0       	ldi	r31, 0x01	; 1
+  6a:	02 c0       	rjmp	.+4      	; 0x70 <__do_copy_data+0x10>
+  6c:	05 90       	lpm	r0, Z+
+  6e:	0d 92       	st	X+, r0
+  70:	a0 30       	cpi	r26, 0x00	; 0
+  72:	b1 07       	cpc	r27, r17
+  74:	d9 f7       	brne	.-10     	; 0x6c <__do_copy_data+0xc>
+
+00000076 <__do_clear_bss>:
+  76:	22 e0       	ldi	r18, 0x02	; 2
+  78:	a0 e0       	ldi	r26, 0x00	; 0
+  7a:	b2 e0       	ldi	r27, 0x02	; 2
+  7c:	01 c0       	rjmp	.+2      	; 0x80 <.do_clear_bss_start>
+
+0000007e <.do_clear_bss_loop>:
+  7e:	1d 92       	st	X+, r1
+
+00000080 <.do_clear_bss_start>:
+  80:	a8 30       	cpi	r26, 0x08	; 8
+  82:	b2 07       	cpc	r27, r18
+  84:	e1 f7       	brne	.-8      	; 0x7e <.do_clear_bss_loop>
+  86:	0e 94 b4 00 	call	0x168	; 0x168 <main>
+  8a:	0c 94 be 00 	jmp	0x17c	; 0x17c <_exit>
+
+0000008e <__bad_interrupt>:
+  8e:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
+
+00000092 <initializeDisplayMatrix>:
+	displayMatrix[4] = 0b10000001;
+	displayMatrix[5] = 0b10111101;
+	displayMatrix[6] = 0b10111101;
+	displayMatrix[7] = 0b10111101;	*/
+
+	displayMatrix[0] = 0b10000000;
+  92:	80 e8       	ldi	r24, 0x80	; 128
+  94:	80 93 00 02 	sts	0x0200, r24
+	displayMatrix[1] = 0b01000000;
+  98:	80 e4       	ldi	r24, 0x40	; 64
+  9a:	80 93 01 02 	sts	0x0201, r24
+	displayMatrix[2] = 0b00100000;
+  9e:	80 e2       	ldi	r24, 0x20	; 32
+  a0:	80 93 02 02 	sts	0x0202, r24
+	displayMatrix[3] = 0b00010000;
+  a4:	80 e1       	ldi	r24, 0x10	; 16
+  a6:	80 93 03 02 	sts	0x0203, r24
+	displayMatrix[4] = 0b00001000;
+  aa:	88 e0       	ldi	r24, 0x08	; 8
+  ac:	80 93 04 02 	sts	0x0204, r24
+	displayMatrix[5] = 0b00000100;
+  b0:	84 e0       	ldi	r24, 0x04	; 4
+  b2:	80 93 05 02 	sts	0x0205, r24
+	displayMatrix[6] = 0b00000010;
+  b6:	82 e0       	ldi	r24, 0x02	; 2
+  b8:	80 93 06 02 	sts	0x0206, r24
+	displayMatrix[7] = 0b00000001;
+  bc:	81 e0       	ldi	r24, 0x01	; 1
+  be:	80 93 07 02 	sts	0x0207, r24
+  c2:	08 95       	ret
+
+000000c4 <loadLedMatrix>:
+
+int PORT[]={19,7,0,13,10,24,14,20};
+
+
+void loadLedMatrix(char clr)
+{
+  c4:	bf 92       	push	r11
+  c6:	cf 92       	push	r12
+  c8:	df 92       	push	r13
+  ca:	ef 92       	push	r14
+  cc:	ff 92       	push	r15
+  ce:	0f 93       	push	r16
+  d0:	1f 93       	push	r17
+  d2:	cf 93       	push	r28
+  d4:	df 93       	push	r29
+  d6:	08 2f       	mov	r16, r24
+  d8:	80 e6       	ldi	r24, 0x60	; 96
+  da:	90 e0       	ldi	r25, 0x00	; 0
+  dc:	c0 e0       	ldi	r28, 0x00	; 0
+  de:	d2 e0       	ldi	r29, 0x02	; 2
+  e0:	0f 2e       	mov	r0, r31
+  e2:	f8 ec       	ldi	r31, 0xC8	; 200
+  e4:	bf 2e       	mov	r11, r31
+  e6:	f0 2d       	mov	r31, r0
+  e8:	c1 2c       	mov	r12, r1
+  ea:	28 e0       	ldi	r18, 0x08	; 8
+  ec:	32 e0       	ldi	r19, 0x02	; 2
+				if(clr=='g'){
+					GREEN_COLM = ~ALPHA[l][i];
+					RED_COLM = OFF_FULL_COLM;
+				}
+				else if(clr=='r'){
+					GREEN_COLM = OFF_FULL_COLM;
+  ee:	ff 24       	eor	r15, r15
+  f0:	fa 94       	dec	r15
+  f2:	60 e0       	ldi	r22, 0x00	; 0
+  f4:	72 e0       	ldi	r23, 0x02	; 2
+  f6:	29 c0       	rjmp	.+82     	; 0x14a <loadLedMatrix+0x86>
+		for(k=0;k<200;k++){
+			
+			for(i=0;i<8;i++)
+			{
+				//		PORTC |= 0b00111100;
+				if(clr=='g'){
+  f8:	07 36       	cpi	r16, 0x67	; 103
+  fa:	29 f4       	brne	.+10     	; 0x106 <loadLedMatrix+0x42>
+					GREEN_COLM = ~ALPHA[l][i];
+  fc:	10 81       	ld	r17, Z
+  fe:	10 95       	com	r17
+ 100:	1b bb       	out	0x1b, r17	; 27
+					RED_COLM = OFF_FULL_COLM;
+ 102:	f2 ba       	out	0x12, r15	; 18
+ 104:	0b c0       	rjmp	.+22     	; 0x11c <loadLedMatrix+0x58>
+				}
+				else if(clr=='r'){
+ 106:	02 37       	cpi	r16, 0x72	; 114
+ 108:	29 f4       	brne	.+10     	; 0x114 <loadLedMatrix+0x50>
+					GREEN_COLM = OFF_FULL_COLM;
+ 10a:	fb ba       	out	0x1b, r15	; 27
+					RED_COLM = ~ALPHA[l][i];
+ 10c:	10 81       	ld	r17, Z
+ 10e:	10 95       	com	r17
+ 110:	12 bb       	out	0x12, r17	; 18
+ 112:	04 c0       	rjmp	.+8      	; 0x11c <loadLedMatrix+0x58>
+				}
+				else {
+					GREEN_COLM = RED_COLM = ~ALPHA[l][i];
+ 114:	10 81       	ld	r17, Z
+ 116:	10 95       	com	r17
+ 118:	12 bb       	out	0x12, r17	; 18
+ 11a:	1b bb       	out	0x1b, r17	; 27
+				}
+				//RED_COLM = OFF_COLM;
+				//GREEN_COLM = OFF_COLM;
+
+				ROW = displayMatrix[i];
+ 11c:	1d 91       	ld	r17, X+
+ 11e:	18 bb       	out	0x18, r17	; 24
+	#else
+		//round up by default
+		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
+	#endif
+
+	__builtin_avr_delay_cycles(__ticks_dc);
+ 120:	16 ea       	ldi	r17, 0xA6	; 166
+ 122:	1a 95       	dec	r17
+ 124:	f1 f7       	brne	.-4      	; 0x122 <loadLedMatrix+0x5e>
+ 126:	00 c0       	rjmp	.+0      	; 0x128 <loadLedMatrix+0x64>
+ 128:	32 96       	adiw	r30, 0x02	; 2
+		
+		l=m;
+
+		for(k=0;k<200;k++){
+			
+			for(i=0;i<8;i++)
+ 12a:	a2 17       	cp	r26, r18
+ 12c:	b3 07       	cpc	r27, r19
+ 12e:	21 f7       	brne	.-56     	; 0xf8 <loadLedMatrix+0x34>
+ 130:	41 50       	subi	r20, 0x01	; 1
+ 132:	51 09       	sbc	r21, r1
+
+	for(m=0;m<26;m++){
+		
+		l=m;
+
+		for(k=0;k<200;k++){
+ 134:	41 15       	cp	r20, r1
+ 136:	51 05       	cpc	r21, r1
+ 138:	21 f0       	breq	.+8      	; 0x142 <loadLedMatrix+0x7e>
+ 13a:	db 01       	movw	r26, r22
+
+int PORT[]={19,7,0,13,10,24,14,20};
+
+
+void loadLedMatrix(char clr)
+{
+ 13c:	ed 2d       	mov	r30, r13
+ 13e:	fe 2d       	mov	r31, r14
+ 140:	db cf       	rjmp	.-74     	; 0xf8 <loadLedMatrix+0x34>
+ 142:	40 96       	adiw	r24, 0x10	; 16
+	int i,k,l,m;
+	//	unsigned char x=01;
+	//PORTD=1;
+	//PORTD=0xFF;
+
+	for(m=0;m<26;m++){
+ 144:	8c 17       	cp	r24, r28
+ 146:	9d 07       	cpc	r25, r29
+ 148:	29 f0       	breq	.+10     	; 0x154 <loadLedMatrix+0x90>
+
+int PORT[]={19,7,0,13,10,24,14,20};
+
+
+void loadLedMatrix(char clr)
+{
+ 14a:	4b 2d       	mov	r20, r11
+ 14c:	5c 2d       	mov	r21, r12
+ 14e:	d8 2e       	mov	r13, r24
+ 150:	e9 2e       	mov	r14, r25
+ 152:	f3 cf       	rjmp	.-26     	; 0x13a <loadLedMatrix+0x76>
+			}
+
+		}
+
+	}
+}
+ 154:	df 91       	pop	r29
+ 156:	cf 91       	pop	r28
+ 158:	1f 91       	pop	r17
+ 15a:	0f 91       	pop	r16
+ 15c:	ff 90       	pop	r15
+ 15e:	ef 90       	pop	r14
+ 160:	df 90       	pop	r13
+ 162:	cf 90       	pop	r12
+ 164:	bf 90       	pop	r11
+ 166:	08 95       	ret
+
+00000168 <main>:
+
+
+int main(void)
+{
+
+	DDRA  = 0xFF; // red
+ 168:	8f ef       	ldi	r24, 0xFF	; 255
+ 16a:	8a bb       	out	0x1a, r24	; 26
+	DDRB  = 0xFF; // row
+ 16c:	87 bb       	out	0x17, r24	; 23
+	DDRD  = 0xFF; // green
+ 16e:	81 bb       	out	0x11, r24	; 17
+	
+	//PORTB = 0xFF;
+	//PORTA = 0x00;
+	//PORTD = 0x00;
+	
+	initializeDisplayMatrix();
+ 170:	0e 94 49 00 	call	0x92	; 0x92 <initializeDisplayMatrix>
+	while(1)
+	{
+		loadLedMatrix('g');
+ 174:	87 e6       	ldi	r24, 0x67	; 103
+ 176:	0e 94 62 00 	call	0xc4	; 0xc4 <loadLedMatrix>
+ 17a:	fc cf       	rjmp	.-8      	; 0x174 <main+0xc>
+
+0000017c <_exit>:
+ 17c:	f8 94       	cli
+
+0000017e <__stop_program>:
+ 17e:	ff cf       	rjmp	.-2      	; 0x17e <__stop_program>
