@@ -30,6 +30,9 @@ A simple code to display a static 'A' to the Bi-Color LED Matrix 2188.
 #define GREEN_COLOR 'g'
 #define BOTH_COLOR 'b'
 
+#define N 8
+
+
 
 unsigned char displayMatrix[8]; // Row Data
 
@@ -109,14 +112,23 @@ int ALPHA[26][8]={{0,0b01111111,0b11111111,0b11001100,0b11001100,0b11001100,0b11
 {0b11000011,0b11100011,0b11110011,0b11111011,0b11011111,0b11001111,0b11000111,0b11000011}};//characters a,b,c,d,e,f,g,...z binary codecs
 
 
-
 int PORT[]={19,7,0,13,10,24,14,20};
+
+void clearDot()
+{
+	int i;
+	for (i=0;i<N;++i)
+	{
+		ROW = (1<<i);
+		GREEN_COLM = OFF_FULL_COLM;
+		RED_COLM = OFF_FULL_COLM;
+	}
+}
 
 
 
 // An Inplace function to rotate a N r N matrix
 // by 90 degrees in anti-clockwise direction
-#define N 8
 int symbol[N];
 int matrix[N][N];
 void rotateLeftMatrix()
@@ -225,13 +237,10 @@ void drawSymbol(int inpSymbol[],char clr,char dir){
 
 void loadLedMatrix(char clr)
 {
-	int l,m;
+	int m;
 
 	for(m=0;m<26;m++){
-		
-		l=m;
-
-		drawSymbol(ALPHA[l],GREEN_COLOR,UP);
+		drawSymbol(ALPHA[m],GREEN_COLOR,UP);
 	}
 
 }
@@ -282,12 +291,16 @@ int main(void)
 	while(1)
 	{
 		//loadLedMatrix(GREEN_COLOR);
+		clearDot();
 		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,UP);
 		_delay_ms(1000);
+		clearDot();
 		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,LEFT);
 		_delay_ms(1000);
+		clearDot();
 		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,DOWN);
 		_delay_ms(1000);
+		clearDot();
 		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,RIGHT);
 		_delay_ms(1000);
 	}
