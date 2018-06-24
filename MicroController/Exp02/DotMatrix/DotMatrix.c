@@ -21,6 +21,16 @@ A simple code to display a static 'A' to the Bi-Color LED Matrix 2188.
 #define ON_COLM 0
 
 
+
+#define UP 'u'
+#define LEFT 'l'
+#define DOWN 'd'
+#define RIGHT 'r'
+#define RED_COLOR 'r'
+#define GREEN_COLOR 'g'
+#define BOTH_COLOR 'b'
+
+
 unsigned char displayMatrix[8]; // Row Data
 
 void initializeDisplayMatrix()
@@ -145,7 +155,7 @@ void makeMatrix()
 	{
 		for (c = 0; c < N; c++)
 		{
-			matrix[r][c] = (symbol[r] & (1<<(N-1-c)));
+			matrix[r][c] = (symbol[r] & (1<<(N-1-c)))!=0;
 		}
 	}
 }
@@ -165,17 +175,37 @@ void makeSymbol()
 }
 
 // 1 to draw that 0 to not in symbol
-void drawSymbol(int symbol[],char clr){
+
+void drawSymbol(int inpSymbol[],char clr,char dir){
+	
+	int j;
+	for(j = 0; j < N; j++)
+	{
+		symbol[j] = inpSymbol[j];
+	}
+	
+	makeMatrix();
+	switch(dir){
+		case RIGHT:
+		rotateLeftMatrix();
+		case DOWN:
+		rotateLeftMatrix();
+		case LEFT:
+		rotateLeftMatrix();
+		//case 'u':
+	}
+	makeSymbol();
+	
 	int i,k;
 	for(k=0;k<200;k++){
 		
 		for(i=0;i<N;i++)
 		{
-			if(clr=='g'){
+			if(clr==GREEN_COLOR){
 				GREEN_COLM = ~symbol[i];
 				RED_COLM = OFF_FULL_COLM;
 			}
-			else if(clr=='r'){
+			else if(clr==RED_COLOR){
 				GREEN_COLM = OFF_FULL_COLM;
 				RED_COLM = ~symbol[i];
 			}
@@ -190,44 +220,22 @@ void drawSymbol(int symbol[],char clr){
 	}
 }
 
+
+
+
 void loadLedMatrix(char clr)
 {
-	int i,k,l,m;
-	//	unsigned char x=01;
-	//PORTD=1;
-	//PORTD=0xFF;
+	int l,m;
 
 	for(m=0;m<26;m++){
 		
 		l=m;
 
-		for(k=0;k<200;k++){
-			
-			for(i=0;i<8;i++)
-			{
-				//		PORTC |= 0b00111100;
-				if(clr=='g'){
-					GREEN_COLM = ~ALPHA[l][i];
-					RED_COLM = OFF_FULL_COLM;
-				}
-				else if(clr=='r'){
-					GREEN_COLM = OFF_FULL_COLM;
-					RED_COLM = ~ALPHA[l][i];
-				}
-				else {
-					GREEN_COLM = RED_COLM = ~ALPHA[l][i];
-				}
-				//RED_COLM = OFF_COLM;
-				//GREEN_COLM = OFF_COLM;
-
-				ROW = displayMatrix[i];
-				_delay_us(500);
-			}
-
-		}
-
+		drawSymbol(ALPHA[l],GREEN_COLOR,UP);
 	}
+
 }
+
 
 
 
@@ -268,17 +276,22 @@ int main(void)
 	DDRB  = 0xFF; // row
 	DDRD  = 0xFF; // green
 	
-	
-	
-	//PORTB = 0xFF;
-	//PORTA = 0x00;
-	//PORTD = 0x00;
+
 	
 	initializeDisplayMatrix();
 	while(1)
 	{
-		loadLedMatrix('g');
+		//loadLedMatrix(GREEN_COLOR);
+		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,UP);
+		_delay_ms(1000);
+		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,LEFT);
+		_delay_ms(1000);
+		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,DOWN);
+		_delay_ms(1000);
+		drawSymbol(ALPHA['A'-'A'],GREEN_COLOR,RIGHT);
+		_delay_ms(1000);
 	}
+	
 	//
 	//while(1){
 	//DotMover('x');
