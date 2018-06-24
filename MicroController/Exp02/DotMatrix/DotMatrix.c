@@ -159,7 +159,7 @@ void makeSymbol()
 		symbol[r]=0;
 		for (c = 0; c < N; c++)
 		{
-			symbol[r] |= (matrix[r][c] << (N-1-c)));
+			symbol[r] |= (matrix[r][c] << (N-1-c));
 		}
 	}
 }
