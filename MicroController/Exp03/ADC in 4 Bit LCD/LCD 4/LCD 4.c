@@ -1,3 +1,4 @@
+#define MAX_VOLTAGE 5
 
 #ifndef F_CPU
 #define F_CPU 16000000UL // 16 MHz clock speed
@@ -99,7 +100,7 @@ int main(void)
 		ADCSRA |= (1<<ADSC);// start conversion
 		while(ADCSRA&(1<<ADSC)); // wait until finished
 		value = ADCH;//(ADCH<<2)|(ADCL>>6);
-		result = 5*value/255.0;//Ignoring <= 24.4mv
+		result = MAX_VOLTAGE*value/255.0;//Ignoring <= 24.4mv
 		
 		Lcd4_Clear();
 
@@ -108,12 +109,12 @@ int main(void)
 
 		//sprintf(num, "%lf", result);
 		ftoa(result,num,3);
-		
+
 		Lcd4_Set_Cursor(1,0);
 		Lcd4_Write_String("Voltage Value: ");
 		Lcd4_Set_Cursor(2,0);
 		Lcd4_Write_String(num);
-		_delay_ms(1000);
+		_delay_ms(500);
 	}
 
 }
