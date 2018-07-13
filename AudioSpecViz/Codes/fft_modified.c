@@ -214,53 +214,43 @@ void TIMER_config()
     TCCR1B = _BV(WGM12) | _BV(CS10);
     OCR1A = ADC_TIME;	// time for one ADC sample
     OCR1B = SLEEP_TIME;	// time to go to sleep
-    TIMSK1 = _BV(OCIE1B) | _BV(OCIE1A);
+    // TIMSK1 = _BV(OCIE1B) | _BV(OCIE1A);
+    TCCR1A = 0x00;
+    // TCCR1B = 1<<CS10;// = sys clk
+    TIMSK = (1<<OCIE1A) | (1<<OCIE1B);
 }
 
 void PORT_config()
 {
-    //init ports
-    DDRD |= (1<<DDD6) | (1<<DDD1);		// USART Ports to transmit to other microcontroller
-    PORTD = 0x00;							// Turn off pull-up resistors
-    DDRC = 0x00;							// push button ports
-    PORTC = 0x01;							// pull up resistors on ports with buttons
-    DDRB |= (1<<DDB3);					// push button "acknowledge" output signal to other MCU
-    PORTB |= (1<<PORTB3);					// default to high output
+    // //init ports
+    // DDRD |= (1<<DDD6) | (1<<DDD1);		// USART Ports to transmit to other microcontroller
+    // PORTD = 0x00;							// Turn off pull-up resistors
+    // DDRC = 0x00;							// push button ports
+    // PORTC = 0x01;							// pull up resistors on ports with buttons
+    // DDRB |= (1<<DDB3);					// push button "acknowledge" output signal to other MCU
+    // PORTB |= (1<<PORTB3);					// default to high output
 }
 
 void USART_config()
 {
     // USART in Synchronous mode, transmitter enabled, frequency 2Mbps
-    DDRB |= (1<<DDB0);									// Enable output on USART0 Clock Pin
-    UCSR0B = _BV(TXEN0);									// Enable transmit
-    UCSR0C = _BV(UMSEL00) | (1<<UCSZ01) | (1<<UCSZ00);	// Enable USART Synchronous Mode with 8-bit character size
-    UBRR0L = 2 ;											// Set transmit rate to 2 Mbps
+    // DDRB |= (1<<DDB0);									// Enable output on USART0 Clock Pin
+    // UCSR0B = _BV(TXEN0);									// Enable transmit
+    // UCSR0C = _BV(UMSEL00) | (1<<UCSZ01) | (1<<UCSZ00);	// Enable USART Synchronous Mode with 8-bit character size
+    // UBRR0L = 2 ;											// Set transmit rate to 2 Mbps
 }
 
 
 void ADC_config()
 {
     // Set up the ADC
-    ADMUX = (1<<ADLAR)|(1<<REFS1)|(1<<REFS0)+0;				// Enable ADC Left Adjust Result and 2.56V Voltage Reference and ADC Port 0
+    ADMUX = (1<<ADLAR)|(0<<REFS1)|(1<<REFS0);
+    // ADMUX = (1<<ADLAR)|(1<<REFS1)|(1<<REFS0)+0;				// Enable ADC Left Adjust Result and 2.56V Voltage Reference and ADC Port 0
     ADCSRA = ((1<<ADEN)|(1<<ADSC))+7; 						// Runs at 125kHz, corresponds to 8-bit precision    
 }
 
-//==================================         
-// set up the ports and timers
-int main() {
-
-    TIMER_config();
-    PORT_config();
-    USART_config();
-  ///////////////////////
-    ADC_config();
-  adcind=0;		// initialize array indexes
-  currbin=0;
-
-  // Buttons
-  freqopt=1;	//set frequency range to 2 kHz initially
-  freqState = Release;
-  
+void generateDataTable()
+{
   //loop iterator
   int i;
   // generate arrays
@@ -282,64 +272,84 @@ int main() {
   for (i=0; i<spectrum_bins; i++)
 	erasespecbuff[i]=0;
 
-  // Set up single ADC timing with sleep mode
-  sei();
-  set_sleep_mode(SLEEP_MODE_IDLE);
-  sleep_enable();
+}
 
-  while(1) {
-	// store Port C and update button press FSM
-    buttons=PINC;
-	freqScaleFSM();
-	// if ADC buffer is full...
-  	if (adcind >= N_WAVE) {
-		// clear FFT arrays
-		memcpy(specbuff,erasespecbuff,spectrum_bins);
-		memcpy(fi,erasefi,N_WAVE);
-		// copy ADC buffer into separate array
-		memcpy(fr,adcbuff,N_WAVE);
+//==================================         
+// set up the ports and timers
+int main() {
 
-        //*********************
-		//scale the ADC values up for fixed point operation, and window with trapezoid with 32-pt slopes
-		for(i=0; i<N_WAVE; i++){
-			fr[i] = multfix((fr[i]<<4),adcMask[i]);
-		}
-        //*********************
+    TIMER_config();
+    PORT_config();
+    USART_config();
+    ///////////////////////
+    ADC_config();
+    adcind=0;		// initialize array indexes
+    currbin=0;
 
-		//do an 128 pt FFT here
-		//save the magnitude of the the first 64 pts of the FFT into array (since all real input is reflected)
-		FFTfix(fr, fi, LOG2_N_WAVE);
-		for (i=0;i<(N_WAVE/2);i++) {
-			//Magnitude Function: Sum of Squares of the Real & Imaginary parts
-			fftarray[i]=multfix(fr[i],fr[i])+multfix(fi[i],fi[i]);
-			//store 8-bit values into 32 frequency bins dep}ing on overall frequency range
-			if (freqopt==0) specbuff[(char)(i/2)]+=(char)(fftarray[i]);
-			else if (freqopt==1 && i<32) specbuff[i]+=(char)(fftarray[i]);
-		}
+    // Buttons
+    freqopt=1;	//set frequency range to 2 kHz initially
+    freqState = Release;
+
+    generateDataTable();
+  
+    // Set up single ADC timing with sleep mode
+    sei();
+    set_sleep_mode(SLEEP_MODE_IDLE);
+    sleep_enable();
+
+    while(1) {
+        // store Port C and update button press FSM
+        buttons=PINC;
+        freqScaleFSM();
+        // if ADC buffer is full...
+        if (adcind >= N_WAVE) {
+            // clear FFT arrays
+            memcpy(specbuff,erasespecbuff,spectrum_bins);
+            memcpy(fi,erasefi,N_WAVE);
+            // copy ADC buffer into separate array
+            memcpy(fr,adcbuff,N_WAVE);
+
+            //*********************
+            //scale the ADC values up for fixed point operation, and window with trapezoid with 32-pt slopes
+            for(i=0; i<N_WAVE; i++){
+                fr[i] = multfix((fr[i]<<4),adcMask[i]);
+            }
+            //*********************
+
+            //do an 128 pt FFT here
+            //save the magnitude of the the first 64 pts of the FFT into array (since all real input is reflected)
+            FFTfix(fr, fi, LOG2_N_WAVE);
+            for (i=0;i<(N_WAVE/2);i++) {
+                //Magnitude Function: Sum of Squares of the Real & Imaginary parts
+                fftarray[i]=multfix(fr[i],fr[i])+multfix(fi[i],fi[i]);
+                //store 8-bit values into 32 frequency bins dep}ing on overall frequency range
+                if (freqopt==0) specbuff[(char)(i/2)]+=(char)(fftarray[i]);
+                else if (freqopt==1 && i<32) specbuff[i]+=(char)(fftarray[i]);
+            }
 
 
 
 
-		//Transmit the 32 bytes of binned frequency data over to Video MCU
-		//s} Tx ready signal
-		PORTD |= (1<<PORTD6);
-		//Transmit in 4 byte packets as soon as Rx ready
-		for (int j=0; j<8; j++) {
-			//wait for Rx ready signal
-			while ((PIND & (1<<PIND7)) != (1<<PIND7));
-			for (i=0; i<4; i++) {
-				while (!(UCSR0A & _BV(UDRE0))) ;
-				UDR0 = specbuff[currbin++] ;
-    	    }
-		}
-		//s} Tx not ready signal after transmit complete
-		while (!(UCSR0A & _BV(TXC0)));
-		PORTD &= ~(1<<PORTD6);
-		
-        
-        //reset array indexes to start acquiring data again
-		currbin=0;
-		adcind=0;
-	}  //if
-  }  //while
+            //Transmit the 32 bytes of binned frequency data over to Video MCU
+            //s} Tx ready signal
+            PORTD |= (1<<PORTD6);
+            //Transmit in 4 byte packets as soon as Rx ready
+            for (int j=0; j<8; j++) {
+                //wait for Rx ready signal
+                while ((PIND & (1<<PIND7)) != (1<<PIND7));
+                for (i=0; i<4; i++) {
+                    while (!(UCSR0A & _BV(UDRE0))) ;
+                    UDR0 = specbuff[currbin++] ;
+                }
+            }
+            //s} Tx not ready signal after transmit complete
+            while (!(UCSR0A & _BV(TXC0)));
+            PORTD &= ~(1<<PORTD6);
+            
+            
+            //reset array indexes to start acquiring data again
+            currbin=0;
+            adcind=0;
+        }  //if
+    }  //while
 }  //main
