@@ -53,10 +53,10 @@ prod;                        \
 #define SLEEP_TIME 1975 // set SLEEP to occur slightly before ISR
 
 //FFT buffer
-#define spectrum_bins 32 			// amount of bins to s}/display
+#define SPECTRUM_BINS 32 			// amount of bins to s}/display
 int fftarray[N_WAVE];				// array to hold FFT points
-char specbuff[spectrum_bins];		// array to hold freq bin data to transmit
-char erasespecbuff[spectrum_bins];	// empty array to clear spec buff
+char specbuff[SPECTRUM_BINS];		// array to hold freq bin data to transmit
+char erasespecbuff[SPECTRUM_BINS];	// empty array to clear spec buff
 unsigned char currbin;				// index of specbuff
 
 // ADC Variables
@@ -269,7 +269,7 @@ void generateDataTable()
   }
 
   // generate empty array to erase
-  for (i=0; i<spectrum_bins; i++)
+  for (i=0; i<SPECTRUM_BINS; i++)
 	erasespecbuff[i]=0;
 
 }
@@ -304,7 +304,7 @@ int main() {
         // if ADC buffer is full...
         if (adcind >= N_WAVE) {
             // clear FFT arrays
-            memcpy(specbuff,erasespecbuff,spectrum_bins);
+            memcpy(specbuff,erasespecbuff,SPECTRUM_BINS);
             memcpy(fi,erasefi,N_WAVE);
             // copy ADC buffer into separate array
             memcpy(fr,adcbuff,N_WAVE);
