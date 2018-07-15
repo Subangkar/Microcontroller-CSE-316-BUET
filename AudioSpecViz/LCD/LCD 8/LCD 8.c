@@ -1,6 +1,6 @@
 
 //#ifndef F_CPU
-#define F_CPU 16000000UL // 16 MHz clock speed
+#define F_CPU 1000000UL // 16 MHz clock speed
 //#endif
 
 #define D0 eS_PORTD0
@@ -21,6 +21,74 @@
 #include <avr/interrupt.h>
 
 #include "lcd.h"
+
+
+#include <stdlib.h>
+#include <math.h>
+
+// reverses a string 'str' of length 'len'
+void reverse(char *str, int len)
+{
+	int i=0, j=len-1, temp;
+	while (i<j)
+	{
+		temp = str[i];
+		str[i] = str[j];
+		str[j] = temp;
+		i++; j--;
+	}
+}
+
+// Converts a given integer x to string str[].  d is the number
+// of digits required in output. If d is more than the number
+// of digits in x, then 0s are added at the beginning.
+int intToStr(int x, char str[], int d)
+{
+	int i = 0;
+	while (x)
+	{
+		str[i++] = (x%10) + '0';
+		x = x/10;
+	}
+	
+	// If number of digits required is more, then
+	// add 0s at the beginning
+	while (i < d)
+	str[i++] = '0';
+	
+	reverse(str, i);
+	str[i] = '\0';
+	return i;
+}
+
+// Converts a floating point number to string.
+void ftoa(float n, char *res, int afterpoint)
+{
+	// Extract integer part
+	int ipart = (int)n;
+	
+	// Extract floating part
+	float fpart = n - (float)ipart;
+	
+	// convert integer part to string
+	int i = intToStr(ipart, res, 0);
+	
+	// check for display option after point
+	if (afterpoint != 0)
+	{
+		res[i] = '.';  // add dot
+		
+		// Get the value of fraction part upto given no.
+		// of points after dot. The third parameter is needed
+		// to handle cases like 233.007
+		fpart = fpart * pow(10, afterpoint);
+		
+		intToStr((int)fpart, res + i + 1, afterpoint);
+	}
+}
+
+
+
 int main(void)
 {
     DDRD = 0xFF;
@@ -31,7 +99,7 @@ int main(void)
 	DDRB = 0xFF;
 	ADMUX	= 0b01100000;
 	ADCSRA	= 0b10000001;
-	unsigned char result=0x00;
+	float result=0x00;
 	PORTB = result;
 
 
@@ -42,20 +110,23 @@ int main(void)
 
 
 
-
+	int val;
 
 	while(1)
 	{
 		ADCSRA |= (1<<ADSC);// start conversion
 		while(ADCSRA&(1<<ADSC));
-		result = ADCH;//Ignoring <= 24.4mv
-		PORTB = result;
+		val = ADCL;//Ignoring <= 24.4mv
+		result = (val>>6)|(ADCH<<2);
+		result = (5*result)/1023;
+		//PORTB = result;
 		
 		
 		Lcd8_Set_Cursor(1,1);
 		//Lcd8_Write_String("electroSome LCD Hello World");
-		char num[8];
-		itoa(result,num,10);
+		char num[10];
+		ftoa(result,num,3);
+		strcat(num," V");
 		Lcd8_Clear();		
 		Lcd8_Write_String(num);
 		//for(i=0;i<15;i++)
@@ -71,7 +142,7 @@ int main(void)
 		//Lcd8_Clear();
 		//Lcd8_Write_Char('e');
 		//Lcd8_Write_Char('S');
-		//_delay_ms(10);
+		_delay_ms(100);
 		x+=1;
 	}
 
