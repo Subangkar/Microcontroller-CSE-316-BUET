@@ -12,95 +12,9 @@
 //#define F_CPU 8000000UL // 1 MHz clock speed
 //#endif
 
-#define D0 eS_PORTD0
-#define D1 eS_PORTD1
-#define D2 eS_PORTD2
-#define D3 eS_PORTD3
-#define D4 eS_PORTD4
-#define D5 eS_PORTD5
-#define D6 eS_PORTD6
-#define D7 eS_PORTD7
-#define RS eS_PORTC6
-#define EN eS_PORTC7
-
-#include <avr/io.h>
-#include <util/delay.h>
-#include <avr/sleep.h>
-#include <avr/interrupt.h>
-#include <avr/pgmspace.h>
-
-#include "lcd.h"
-
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include <math.h>
-
-#define forLoop(i,l) for(i=0;i<l;i++)
-
-// reverses a string 'str' of length 'len'
-void reverse(char *str, int len)
-{
-	int i=0, j=len-1, temp;
-	while (i<j)
-	{
-		temp = str[i];
-		str[i] = str[j];
-		str[j] = temp;
-		i++; j--;
-	}
-}
-
-// Converts a given integer x to string str[].  d is the number
-// of digits required in output. If d is more than the number
-// of digits in x, then 0s are added at the beginning.
-int intToStr(int x, char str[], int d)
-{
-	int i = 0;
-	while (x)
-	{
-		str[i++] = (x%10) + '0';
-		x = x/10;
-	}
-	
-	// If number of digits required is more, then
-	// add 0s at the beginning
-	while (i < d)
-	str[i++] = '0';
-	
-	reverse(str, i);
-	str[i] = '\0';
-	return i;
-}
-
-// Converts a floating point number to string.
-void ftoa(float n, char *res, int afterpoint)
-{
-	// Extract integer part
-	int ipart = (int)n;
-	
-	// Extract floating part
-	float fpart = n - (float)ipart;
-	
-	// convert integer part to string
-	int i = intToStr(ipart, res, 0);
-	
-	// check for display option after point
-	if (afterpoint != 0)
-	{
-		res[i] = '.';  // add dot
-		
-		// Get the value of fraction part upto given no.
-		// of points after dot. The third parameter is needed
-		// to handle cases like 233.007
-		fpart = fpart * pow(10, afterpoint);
-		
-		intToStr((int)fpart, res + i + 1, afterpoint);
-	}
-}
+#include "Basic.h"
 
 char lcdStringBuff[15];
-
 
 
 
@@ -133,11 +47,12 @@ ISR(TIMER1_COMPB_vect, ISR_NAKED)
 int readAnalogValue(int res);
 ISR (TIMER1_COMPA_vect) {
 	if(analogBuffIndex<N_SAMPLE_POINTS) {
-		analogTimeBuff[analogBuffIndex++]=readAnalogValue(8);//-OFFSET_DC_8BIT;
+		//while(ADCSRA&(1<<ADSC));
+		analogTimeBuff[analogBuffIndex++]=readAnalogValue(8)-OFFSET_DC_8BIT;
 		ADCSRA |= (1<<ADSC);
-		
+		TCNT1=0;//reset the timer for next time
 		// must be removed
-		_delay_us(100);// to show diff of voltages with time
+		//_delay_us(10);// to show diff of voltages with time
 	}
 }
 
@@ -230,7 +145,7 @@ int main(void)
 			sprintf(lcdStringBuff,"%d %d %d",analogTimeBuff[4],analogTimeBuff[5],analogTimeBuff[6]);
 			Lcd8_Write_String(lcdStringBuff);
 			analogBuffIndex=0;
-			_delay_ms(100);
+			//_delay_ms(100);
 		}
 	}
 
