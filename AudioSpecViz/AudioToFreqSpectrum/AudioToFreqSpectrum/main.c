@@ -23,6 +23,7 @@ char lcdStringBuff[15];
 
 
 #define N_SAMPLE_POINTS 7
+#define SAMPLING_FREQ 8000 // 8KHz
 #define OFFSET_DC_10BIT 327 // 1.6v
 #define OFFSET_DC_8BIT 81 // 1.6v
 
