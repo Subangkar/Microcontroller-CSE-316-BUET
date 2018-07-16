@@ -1,89 +1,14 @@
-/*
- * VINUCODE.c
- *
- * Created: 14-Jul-18 10:35:53 PM
- * Author : SubangkarKr
- */ 
-
-#include <avr/io.h>
-#define F_CPU 16000000
-#include <util/delay.h>
+#include<stdio.h>
+#include<stdint.h>
+#include<math.h>
 #define N 32
-#include "lookup.h"
-#define RS PD5
-#define EN PD6
-#define LCD_NIBBLE PORTC
-
-void adc_init();
-uint16_t adc_read();
-void TRANSFORM();
-void timer1_init();
-void LCD_STROBE(void);
-void lcd_data(unsigned char c);
-void lcd_cmd(unsigned char c);
-void lcd_clear(void);
-void lcd_init();
-void lcd_print(char *p, char l);
-void lcd_fill_custom();
-
-uint8_t lcd_buf1[16];
-uint8_t lcd_buf2[16];
-int32_t fx[N];
-int32_t Fu[N/2][2];
-
-int main()
-{
-	uint8_t mag;
-	int i;
-	//int i,j, temp_value;
-	//uint8_t temp_index;
-	adc_init();
-	lcd_init();
-	lcd_fill_custom();
-	lcd_print("DFT SPECTROMETER",1);
-	lcd_print("0Hz - 10KHz(16)",2);
-	_delay_ms(5000);
-	lcd_clear();
-	timer1_init();
-	while(1) {
-		TCNT1 = 0;
-		TIFR |= 1<<OCF1A;
-		for(i=0;i<N;i++) {
-			while((TIFR & (1<<OCF1A)) == 0);
-			fx[i] = ((int16_t)adc_read());
-			TIFR |= 1<<OCF1A;
-		}
-		TRANSFORM();
-		lcd_cmd(0xc0);
-		for(i =1; i<N/2; i++) {
-			if(Fu[i][0]<0)Fu[i][0]*=-1;
-			if(Fu[i][1]<0)Fu[i][1]*=-1;
-			mag = (uint8_t)(Fu[i][0] + Fu[i][1])/4;
-			if((mag)>7) {
-				lcd_buf1[i] = (mag) - 7 - 1;
-				if(lcd_buf1[i] > 7)
-				lcd_buf1[i] = 7;
-				lcd_buf2[i] = 7;
-			}
-			else {
-				lcd_buf1[i] = ' ';
-				lcd_buf2[i] = mag;
-			}
-		}
-		lcd_cmd(0x80);
-		for(i=1;i<16;i++)
-		lcd_data(lcd_buf1[i]);
-		lcd_cmd(0xc0);
-		for(i=1;i<16;i++)
-		lcd_data(lcd_buf2[i]);
-		
-		
-	}
-	return 0;
-}
+#define N_SAMPLE_POINTS N
+#define SAMPLING_FREQ 20000 // 20KHz
+#define REAL 0
+#define IMG 1
 
 
-PROGMEM const int16_t cos_lookup[]= {
+const int16_t cos_lookup[]= {
 	10000,9998,9993,9986,9975,9961,9945,9925,9902,
 	9876,9848,9816,9781,9743,9702,9659,9612,9563,
 	9510,9455,9396,9335,9271,9205,9135,9063,8987,
@@ -126,7 +51,7 @@ PROGMEM const int16_t cos_lookup[]= {
 	9876,9902,9925,9945,9961,9975,9986,9993,9998
 };
 
-PROGMEM const int16_t sin_lookup[]= {
+const int16_t sin_lookup[]= {
 	0,174,348,523,697,871,1045,1218,1391,
 	1564,1736,1908,2079,2249,2419,2588,2756,2923,
 	3090,3255,3420,3583,3746,3907,4067,4226,4383,
@@ -169,7 +94,7 @@ PROGMEM const int16_t sin_lookup[]= {
 	-1564,-1391,-1218,-1045,-871,-697,-523,-348,-174
 };
 
-PROGMEM const uint8_t degree_lookup[]= {
+const uint8_t degree_lookup[]= {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,5,11,16,22,28,33,39,45,50,56,61,67,
@@ -208,6 +133,10 @@ PROGMEM const uint8_t degree_lookup[]= {
 };
 
 
+int32_t fx[N];
+int32_t Fu[N/2][2];
+
+
 void TRANSFORM()
 {
 	int16_t count,degree;
@@ -215,112 +144,86 @@ void TRANSFORM()
 	count = 0;
 	for (u=0; u<N/2; u++) {
 		for (k=0; k<N; k++) {
-			degree = (uint16_t)pgm_read_byte_near(degree_lookup + count)*2;
+			degree = degree_lookup[count]*2;
 			count++;
-			Fu[u][0] +=  fx[k] * (int16_t)pgm_read_word_near(cos_lookup + degree);
-			Fu[u][1] += -fx[k] * (int16_t)pgm_read_word_near(sin_lookup + degree);
+            // degree = u*k;
+			Fu[u][REAL] +=  fx[k] * cos_lookup[degree];
+			Fu[u][IMG] += -fx[k] * sin_lookup[degree];
 		}
-		Fu[u][0] /= N;
-		Fu[u][0] /= 10000;
-		Fu[u][1] /= N;
-		Fu[u][1] /= 10000;
+		Fu[u][REAL] /= N;
+		Fu[u][REAL] /= 10000;
+		Fu[u][IMG] /= N;
+		Fu[u][IMG] /= 10000;
 	}
 }
 
-void timer1_init()
+#define PI2 6.283185
+int f(double t)
 {
-	TCCR1B = (1<<WGM12)|(1<<CS10);
-	OCR1A = 800;
+    float fltVal = 2*sin(PI2*1000*t)+sin(PI2*7000*t);//+sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t);//+1.5*cos(PI2*1500*t);
+    return (int)(fltVal/0.01953125);
 }
 
-void adc_init()
+uint8_t lcd_buf1[16];
+uint8_t lcd_buf2[16];
+int32_t P[N];
+int main()
 {
-	ADMUX = 0b11000000;
-	ADCSRA =0b10000010;
-}
+    float sample_period = 1/(float)SAMPLING_FREQ;
 
-uint16_t adc_read()
-{
-	volatile uint16_t retl,reth;
-	ADCSRA |= 1<<ADSC;
-	while(!ADIF);
-	ADCSRA |= 1<<ADIF;
-	retl = ADCL;
-	reth = ADCH;
-	reth<<=8;
-	reth|=retl;
-	return reth;
-}
+    uint8_t mag;
+	int i;
+    for(i=0;i<N;i++) {
+        fx[i] = f(sample_period*i);
+        // printf("%d ",fx[i]);
+    }
+    TRANSFORM();
 
-void LCD_STROBE(void)
-{
-	PORTD |= (1 << EN);
-	_delay_us(1);
-	PORTD &= ~(1 << EN);
-}
+    for(i = 1; i<N/2; i++) {
+        if(Fu[i][0]<0)Fu[i][REAL]*=-1;
+        if(Fu[i][1]<0)Fu[i][IMG]*=-1;
+        P[i] = mag = (uint8_t)(Fu[i][REAL] + Fu[i][IMG])/4;
+        // P[i] = mag = (Fu[i][REAL]*Fu[i][REAL] + Fu[i][IMG]*Fu[i][IMG]);
+        // if((mag)>7) {
+        //     lcd_buf1[i] = (mag) - 7 - 1;
+        //     if(lcd_buf1[i] > 7)
+        //     lcd_buf1[i] = 7;
+        //     lcd_buf2[i] = 7;
+        // }
+        // else {
+        //     lcd_buf1[i] = ' ';
+        //     lcd_buf2[i] = mag;
+        // }
+    }
+    int n,k;
+    // Output results to MATLAB / Octave M-file for plotting
+    FILE *f = fopen("dftVinu.m", "w");
+    fprintf(f, "clear all\n");
+   // fprintf(f, "n = [0:%d];\n", N_SAMPLE_POINTS-1);
+    fprintf(f, "xre = [ ");
+    for (n=0 ; n<N_SAMPLE_POINTS ; ++n) fprintf(f, "%d ", fx[n]);
+    fprintf(f, "];\n");
 
-void lcd_data(unsigned char c)
-{
-	PORTD |= (1 << RS);
-	_delay_us(50);
-	LCD_NIBBLE = (c >> 4)|(LCD_NIBBLE&0xf0);
-	LCD_STROBE();
-	LCD_NIBBLE = (c)|(LCD_NIBBLE&0XF0);
-	LCD_STROBE();
-}
+    // fprintf(f, "Pre = [ ");
+    // for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%f ", Pre[k]);
+    // fprintf(f, "];\n");
+    // fprintf(f, "Pim = [ ");
+    // for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%f ", Pim[k]);
+    // fprintf(f, "];\n");
+    fprintf(f, "P = [ ");
+    for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%d ", P[k]);
+    fprintf(f, "];\n");
+    // fprintf(f,"P=P/%d;\n",N_SAMPLE_POINTS);
+    // fprintf(f,"P(2:end-1) = 2*P(2:end-1);\n");
+    // fprintf(f, "subplot(3,1,1)\n");
+    fprintf(f,"t = linspace(0,%f,%d);\n",sample_period,N_SAMPLE_POINTS); // Fs/2 ,L/2 
+    fprintf(f,"f = linspace(0,%d,%d);\n",SAMPLING_FREQ/2,N_SAMPLE_POINTS/2); // Fs/2 ,L/2 
+    fprintf(f,"figure(1)\n");
+    fprintf(f,"plot(t,xre)\n");
+    fprintf(f,"figure(2)\n");
+    fprintf(f,"plot(f,P(1:%d))\n",N_SAMPLE_POINTS/2);
+    fclose(f);
 
-void lcd_cmd(unsigned char c)
-{
-	PORTD &= ~(1 << RS);
-	_delay_us(50);
-	LCD_NIBBLE = (c >> 4)|(LCD_NIBBLE&0xf0);
-	LCD_STROBE();
-	LCD_NIBBLE = (c)|(LCD_NIBBLE&0XF0);
-	LCD_STROBE();
-}
 
-void lcd_clear(void)
-{
-	lcd_cmd(0x01);
-	_delay_ms(5);
+    return 0;
 }
-
-void lcd_init()
-{
-	DDRC = 0b00001111;
-	DDRD |= (1 << RS)|(1 << EN);
-	PORTC |= (1<<PC4);
-	_delay_ms(15);
-	lcd_cmd(0x30);
-	_delay_ms(1);
-	lcd_cmd(0x30);
-	_delay_us(100);
-	lcd_cmd(0x30);
-	lcd_cmd(0x28);
-	lcd_cmd(0x28);
-	lcd_cmd(0x0c);
-	lcd_clear();
-	lcd_cmd(0x6);
-}
-
-void lcd_print(char *p, char l)
-{
-	if(l==1)lcd_cmd(0x80);
-	else lcd_cmd(0xc0);
-	while(*p)
-	lcd_data(*p++);
-}
-
-void lcd_fill_custom()
-{
-	uint8_t i,j;
-	i=0;j=0;
-	lcd_cmd(64);
-	for(i=1;i<=8;i++) {
-		for(j=8;j>i;j--)
-		lcd_data(0);
-		for(j=i;j>0;j--)
-		lcd_data(0xff);
-	}
-}
-
