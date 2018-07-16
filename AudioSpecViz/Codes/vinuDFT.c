@@ -135,9 +135,9 @@ const uint8_t degree_lookup[]= {
 
 int32_t fx[N];
 int32_t Fu[N/2][2];
-
-
-void TRANSFORM()
+int32_t P[N];
+// mapped to int
+void DFT()
 {
 	int16_t count,degree;
 	uint8_t u,k;
@@ -155,18 +155,22 @@ void TRANSFORM()
 		Fu[u][IMG] /= N;
 		Fu[u][IMG] /= 10000;
 	}
+ 	for (u=1; u<N/2; u++) {
+        if(Fu[u][0]<0)Fu[u][REAL]*=-1;
+        if(Fu[u][1]<0)Fu[u][IMG]*=-1;
+        P[u] = (Fu[u][REAL] + Fu[u][IMG])/4;//(uint8_t)
+    }
 }
 
-#define PI2 6.283185
-int f(double t)
+#define PI2 6.283185307
+int16_t f(double t)
 {
-    float fltVal = 2*sin(PI2*1000*t)+sin(PI2*7000*t);//+sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t);//+1.5*cos(PI2*1500*t);
-    return (int)(fltVal/0.01953125);
+    float fltVal = 1.5+2.5*sin(PI2*9500*t)+sin(PI2*7000*t)+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
+    return (int16_t)(fltVal/0.01953125);
 }
 
 uint8_t lcd_buf1[16];
 uint8_t lcd_buf2[16];
-int32_t P[N];
 int main()
 {
     float sample_period = 1/(float)SAMPLING_FREQ;
@@ -177,13 +181,12 @@ int main()
         fx[i] = f(sample_period*i);
         // printf("%d ",fx[i]);
     }
-    TRANSFORM();
+    DFT();
 
     for(i = 1; i<N/2; i++) {
-        if(Fu[i][0]<0)Fu[i][REAL]*=-1;
-        if(Fu[i][1]<0)Fu[i][IMG]*=-1;
-        P[i] = mag = (uint8_t)(Fu[i][REAL] + Fu[i][IMG])/4;
-        // P[i] = mag = (Fu[i][REAL]*Fu[i][REAL] + Fu[i][IMG]*Fu[i][IMG]);
+        // if(Fu[i][0]<0)Fu[i][REAL]*=-1;
+        // if(Fu[i][1]<0)Fu[i][IMG]*=-1;
+        // P[i] = mag = (uint8_t)(Fu[i][REAL] + Fu[i][IMG])/4;
         // if((mag)>7) {
         //     lcd_buf1[i] = (mag) - 7 - 1;
         //     if(lcd_buf1[i] > 7)
@@ -217,11 +220,11 @@ int main()
     // fprintf(f,"P(2:end-1) = 2*P(2:end-1);\n");
     // fprintf(f, "subplot(3,1,1)\n");
     fprintf(f,"t = linspace(0,%f,%d);\n",sample_period,N_SAMPLE_POINTS); // Fs/2 ,L/2 
-    fprintf(f,"f = linspace(0,%d,%d);\n",SAMPLING_FREQ/2,N_SAMPLE_POINTS/2); // Fs/2 ,L/2 
+    fprintf(f,"f = linspace(0,%d,%d);\n",SAMPLING_FREQ/2,N_SAMPLE_POINTS/2+1); // Fs/2 ,L/2 
     fprintf(f,"figure(1)\n");
     fprintf(f,"plot(t,xre)\n");
     fprintf(f,"figure(2)\n");
-    fprintf(f,"plot(f,P(1:%d))\n",N_SAMPLE_POINTS/2);
+    fprintf(f,"plot(f,P(1:%d))\n",N_SAMPLE_POINTS/2+1);
     fclose(f);
 
 

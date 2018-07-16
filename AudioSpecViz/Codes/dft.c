@@ -12,7 +12,7 @@
 
 
 
-#define PI2 6.283185
+#define PI2 6.283185307
 #define TIME_ARRAY xre
 #define FREQ_MAG_ARRAY P
 float xre[N_SAMPLE_POINTS];           // discrete-time signal, xre
