@@ -8,8 +8,8 @@
 
 
 //#ifndef F_CPU
-#define F_CPU 1000000UL // 1 MHz clock speed
-//#define F_CPU 8000000UL // 1 MHz clock speed
+//#define F_CPU 1000000UL // 1 MHz clock speed
+#define F_CPU 8000000UL // 8 MHz clock speed
 //#endif
 
 #include "Basic.h"
@@ -31,9 +31,44 @@ char lcdStringBuff[15];
 #define SAMPLING_SLEEP_CYCLE 105
 
 
-int analogTimeBuff[N_SAMPLE_POINTS];
+//int analogTimeBuff[N_SAMPLE_POINTS];
+#define PI2 6.283185
 int analogValue;
 int analogBuffIndex;
+#define TIME_ARRAY analogTimeBuff
+#define FREQ_MAG_ARRAY P
+float analogTimeBuff[N_SAMPLE_POINTS];           // discrete-time signal, xre
+float Pre[N_SAMPLE_POINTS], Pim[N_SAMPLE_POINTS]; // DFT of xre (real and imaginary parts)
+float P[N_SAMPLE_POINTS];           // power spectrum of xre
+float sin_table[N_SAMPLE_POINTS*N_SAMPLE_POINTS];
+float cos_table[N_SAMPLE_POINTS*N_SAMPLE_POINTS];
+int n, k;             // indices for time and frequency domains
+void dft()
+{
+	// Calculate DFT of xre using brute force
+	for (k=0 ; k<N_SAMPLE_POINTS ; ++k)
+	{
+		Pre[k] = 0;
+		for (n=0 ; n<N_SAMPLE_POINTS ; ++n) Pre[k] += analogTimeBuff[n] * cos_table[n * k];
+		
+		Pim[k] = 0;
+		for (n=0 ; n<N_SAMPLE_POINTS ; ++n) Pim[k] -= analogTimeBuff[n] * sin_table[n * k];
+		
+		// Power at kth frequency bin
+		P[k] = Pre[k]*Pre[k] + Pim[k]*Pim[k];
+	}
+}
+
+void initializeSinCosTable()
+{
+	for (k=0 ; k<N_SAMPLE_POINTS ; ++k)
+	{
+		for (n=0 ; n<N_SAMPLE_POINTS ; ++n){
+			cos_table[n*k] = cos(n * k * PI2 / N_SAMPLE_POINTS);
+			sin_table[n*k] = sin(n * k * PI2 / N_SAMPLE_POINTS);
+		}
+	}
+}
 
 
 
@@ -84,7 +119,7 @@ void timerConfig(){
 void initDataTables()
 {
 	analogBuffIndex=0;
-	
+	initializeSinCosTable();
 	int i;
 	forLoop(i,N_SAMPLE_POINTS)
 	{
@@ -122,6 +157,7 @@ int main(void)
 	set_sleep_mode(SLEEP_MODE_IDLE);
 	sleep_enable();
 	ADCSRA |= (1<<ADSC);// start conversion
+	TCNT1 = 0;
 	while(1)
 	{
 		//int value = readAnalogValue(8)-OFFSET_DC_8BIT;

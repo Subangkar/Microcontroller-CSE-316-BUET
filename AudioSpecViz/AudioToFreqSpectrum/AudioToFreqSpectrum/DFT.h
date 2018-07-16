@@ -1,52 +1,60 @@
-/*
- * DFT.h
- *
- * Created: 16-Jul-18 9:39:07 AM
- *  Author: SubangkarKr
- */ 
-
-
-#ifndef DFT_H_
-#define DFT_H_
-
-#ifndef
-#define N 7
-#endif
-#define PI2 6.2832
-
-
-double f(int t)
-{
-	return sin(PI2*100*t);
-}
-
-int dft()
-{
-	// time and frequency domain data arrays
-	int n, k;             // indices for time and frequency domains
-	float x[N];           // discrete-time signal, x
-	float Xre[N], Xim[N]; // DFT of x (real and imaginary parts)
-	float P[N];           // power spectrum of x
-	
-	// Generate random discrete-time signal x in range (-1,+1)
-	//srand(time(0));
-	for (n=0 ; n<N ; ++n) x[n] = ((2.0 * rand()) / RAND_MAX) - 1.0;
-	
-	// Calculate DFT of x using brute force
-	for (k=0 ; k<N ; ++k)
-	{
-		// Real part of X[k]
-		Xre[k] = 0;
-		for (n=0 ; n<N ; ++n) Xre[k] += x[n] * cos(n * k * PI2 / N);
-		
-		// Imaginary part of X[k]
-		Xim[k] = 0;
-		for (n=0 ; n<N ; ++n) Xim[k] -= x[n] * sin(n * k * PI2 / N);
-		
-		// Power at kth frequency bin
-		P[k] = Xre[k]*Xre[k] + Xim[k]*Xim[k];
-	}
-
-}
-
-#endif /* DFT_H_ */
+///*
+ //* DFT.h
+ //*
+ //* Created: 16-Jul-18 9:39:07 AM
+ //*  Author: SubangkarKr
+ //*/ 
+//
+//
+//#ifndef DFT_H_
+//#define DFT_H_
+//
+//#ifndef N
+//#define N 7
+//#endif
+//#ifndef N_SAMPLE_POINTS
+//#define N_SAMPLE_POINTS 15
+//#endif
+//#ifndef PI2
+//#define PI2 6.283185
+//#endif
+//
+//#define TIME_ARRAY analogTimeBuff
+//#define FREQ_MAG_ARRAY P
+//float analogTimeBuff[N_SAMPLE_POINTS];           // discrete-time signal, xre
+//float Pre[N_SAMPLE_POINTS], Pim[N_SAMPLE_POINTS]; // DFT of xre (real and imaginary parts)
+//float P[N_SAMPLE_POINTS];           // power spectrum of xre
+//float sin_table[N_SAMPLE_POINTS*N_SAMPLE_POINTS];
+//float cos_table[N_SAMPLE_POINTS*N_SAMPLE_POINTS];
+//int n, k;             // indices for time and frequency domains
+//void dft()
+//{
+	//// Calculate DFT of xre using brute force
+	//for (k=0 ; k<N_SAMPLE_POINTS ; ++k)
+	//{
+		//// Real part of X[k]
+		//Pre[k] = 0;
+		//for (n=0 ; n<N_SAMPLE_POINTS ; ++n) Pre[k] += analogTimeBuff[n] * cos_table[n * k];
+		//
+		//// Imaginary part of X[k]
+		//Pim[k] = 0;
+		//for (n=0 ; n<N_SAMPLE_POINTS ; ++n) Pim[k] -= analogTimeBuff[n] * sin_table[n * k];
+		//
+		//// Power at kth frequency bin
+		//P[k] = Pre[k]*Pre[k] + Pim[k]*Pim[k];
+	//}
+//}
+//
+//void initializeSinCosTable()
+//{
+	//for (k=0 ; k<N_SAMPLE_POINTS ; ++k)
+	//{
+		//for (n=0 ; n<N_SAMPLE_POINTS ; ++n){
+			//cos_table[n*k] = cos(n * k * PI2 / N_SAMPLE_POINTS);
+			//sin_table[n*k] = sin(n * k * PI2 / N_SAMPLE_POINTS);
+		//}
+	//}
+//}
+//
+//
+////#endif /* DFT_H_ */
