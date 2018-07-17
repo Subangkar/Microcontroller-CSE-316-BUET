@@ -14,13 +14,13 @@
 //#endif
 
 #include "Basic.h"
-
-char lcdStringBuff[30];
+#define LCD_BUFFER_SIZE 30
+char lcdStringBuff[LCD_BUFFER_SIZE];
 //void printInLCD(const char* format,con)
 
 
 
-int16_t maxV=0,minV=1023;
+int32_t maxV=0,minV=1023;
 
 
 
@@ -34,15 +34,15 @@ int16_t maxV=0,minV=1023;
 
 
 //int analogTimeBuff[N_SAMPLE_POINTS];
-#define PI2 6.283185
+//#define PI2 6.283185
 int analogValue;
 uint8_t analogBuffIndex;
-#define TIME_ARRAY analogTimeBuff
+#define TIME_AMP_ARRAY analogTimeBuff
 #define FREQ_MAG_ARRAY P
 
 #define REAL 0
 #define IMG 1
-const int16_t cos_lookup[]= {
+const int16_t cos_lookup[] PROGMEM = {
 	10000,9998,9993,9986,9975,9961,9945,9925,9902,
 	9876,9848,9816,9781,9743,9702,9659,9612,9563,
 	9510,9455,9396,9335,9271,9205,9135,9063,8987,
@@ -85,7 +85,7 @@ const int16_t cos_lookup[]= {
 	9876,9902,9925,9945,9961,9975,9986,9993,9998
 };
 
-const int16_t sin_lookup[]= {
+const int16_t sin_lookup[] PROGMEM= {
 	0,174,348,523,697,871,1045,1218,1391,
 	1564,1736,1908,2079,2249,2419,2588,2756,2923,
 	3090,3255,3420,3583,3746,3907,4067,4226,4383,
@@ -179,8 +179,10 @@ void DFT()
 		for (k=0; k<N_SAMPLE_POINTS; k++) {
 			degree = degree_lookup[count]*2;
 			count++;
-			Pc[u][REAL] +=  analogTimeBuff[k] * cos_lookup[degree];
-			Pc[u][IMG] += -analogTimeBuff[k] * sin_lookup[degree];
+//			Pc[u][REAL] +=  analogTimeBuff[k] * cos_lookup[degree];
+//			Pc[u][IMG]	+= -analogTimeBuff[k] * sin_lookup[degree];
+			Pc[u][REAL] +=  analogTimeBuff[k] * pgm_read_word(&cos_lookup[degree]);
+			Pc[u][IMG]	+= -analogTimeBuff[k] * pgm_read_word(&sin_lookup[degree]);
 		}
 		Pc[u][REAL] /= N_SAMPLE_POINTS;
 		Pc[u][REAL] /= 10000;
@@ -191,6 +193,8 @@ void DFT()
 		if(Pc[u][0]<0)Pc[u][REAL]*=-1;
 		if(Pc[u][1]<0)Pc[u][IMG]*=-1;
 		P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
+		if(P[u]<minV) minV = P[u]; // && P[u]
+		if(P[u]>maxV) maxV = P[u];
 	}
 }
 
@@ -204,13 +208,13 @@ ISR(TIMER1_COMPB_vect, ISR_NAKED)
 	reti();
 }
 
-int readAnalogValue(int res);
+uint16_t readAnalogValue(uint8_t res);
 ISR (TIMER1_COMPA_vect) {
 	if(analogBuffIndex<N_SAMPLE_POINTS) {
 		//while(ADCSRA&(1<<ADSC));
 		analogTimeBuff[analogBuffIndex++]=readAnalogValue(8);//-OFFSET_DC_8BIT;
-		if(analogTimeBuff[analogBuffIndex-1]>maxV) maxV = analogTimeBuff[analogBuffIndex-1];
-		if(analogTimeBuff[analogBuffIndex-1]<minV) minV = analogTimeBuff[analogBuffIndex-1];
+//		if(analogTimeBuff[analogBuffIndex-1]>maxV) maxV = analogTimeBuff[analogBuffIndex-1];
+//		if(analogTimeBuff[analogBuffIndex-1]<minV) minV = analogTimeBuff[analogBuffIndex-1];
 
 		//Lcd8_Clear();
 		//Lcd8_Set_Cursor(1,0);
@@ -218,8 +222,6 @@ ISR (TIMER1_COMPA_vect) {
 		//sprintf(lcdStringBuff,"%u",analogBuffIndex);
 		//Lcd8_Write_String(lcdStringBuff);
 
-		ADCSRA |= (1<<ADSC);
-		TCNT1=0;//reset the timer for next time
 		// must be removed
 		//_delay_us(10);// to show diff of voltages with time
 	}
@@ -256,11 +258,12 @@ void initDataTables()
 	int i;
 	forLoop(i,N_SAMPLE_POINTS)
 	{
-		analogTimeBuff[i]=0;
+		TIME_AMP_ARRAY[i]=0;
+		FREQ_MAG_ARRAY[i]=0;
 	}
 }
 
-int readAnalogValue(int res)
+uint16_t readAnalogValue(uint8_t res)
 {
 	//adcCycDur=TCNT1;
 	//while(ADCSRA&(1<<ADSC));
@@ -275,6 +278,10 @@ int readAnalogValue(int res)
 }
 
 
+
+
+#define SPEC_BIN_MAG_ARRAY specBinBuf
+int16_t specBinBuf[N_SAMPLE_POINTS/2];
 int main(void)
 {
 	DDRD = 0xFF;
@@ -295,25 +302,40 @@ int main(void)
 	while(1)
 	{
 		Lcd8_Clear();
-		Lcd8_Set_Cursor(1,0);
-		//x+=1;
-		//sprintf(lcdStringBuff,"%d",x);
-		//Lcd8_Write_String("Here");
-		//_delay_ms(1000);
+			
+		if(analogBuffIndex==N_SAMPLE_POINTS)
+		{
+			DFT();
+			//sprintf(lcdStringBuff,"%d %d",pgm_read_word_near(&cos_lookup[3]),pgm_read_word_near(&cos_lookup[7]));
+			//Lcd8_Write_String(lcdStringBuff);
 
-		if(analogBuffIndex==N_SAMPLE_POINTS){
-			Lcd8_Clear();
+			int i,i1,i2;
+			forLoop(i,N_SAMPLE_POINTS/2)
+			{
+				i1 = 2*i;
+				i2 = i1+1;
+				SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2)-150;
+				if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
+			}
 			Lcd8_Set_Cursor(1,0);
-			sprintf(lcdStringBuff,"MAX : %d  %ld",maxV,analogTimeBuff[0]);
-			//sprintf(lcdStringBuff,"%ld %ld %ld %ld",analogTimeBuff[0],analogTimeBuff[4],analogTimeBuff[8],analogTimeBuff[12]);
+			sprintf(lcdStringBuff,"%d %d %d %d",SPEC_BIN_MAG_ARRAY[0],SPEC_BIN_MAG_ARRAY[1],SPEC_BIN_MAG_ARRAY[2],SPEC_BIN_MAG_ARRAY[3]);
 			Lcd8_Write_String(lcdStringBuff);
+
 			Lcd8_Set_Cursor(2,0);
-			sprintf(lcdStringBuff,"MIN : %d  %ld",minV,analogTimeBuff[0]);
-			//sprintf(lcdStringBuff,"%ld %ld %ld",analogTimeBuff[16],analogTimeBuff[20],analogTimeBuff[24]);
+			sprintf(lcdStringBuff,"%d %d %d %d",SPEC_BIN_MAG_ARRAY[4],SPEC_BIN_MAG_ARRAY[5],SPEC_BIN_MAG_ARRAY[6],SPEC_BIN_MAG_ARRAY[7]);
 			Lcd8_Write_String(lcdStringBuff);
+
+			//Lcd8_Set_Cursor(1,0);
+			sprintf(lcdStringBuff,"MAX : %ld  %ld",maxV,analogTimeBuff[0]);
+			//Lcd8_Write_String(lcdStringBuff);
+			//Lcd8_Set_Cursor(2,0);
+			sprintf(lcdStringBuff,"MIN : %ld  %ld",minV,analogTimeBuff[7]);
+			//Lcd8_Write_String(lcdStringBuff);
 			analogBuffIndex=0;
 			//_delay_ms(100);
 		}
+			ADCSRA |= (1<<ADSC);
+			TCNT1=0;//reset the timer for next time
 	}
 
 }

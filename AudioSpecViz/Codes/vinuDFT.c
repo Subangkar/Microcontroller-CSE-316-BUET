@@ -169,7 +169,7 @@ void DFT()
 #define PI2 6.283185307
 int16_t f(double t)
 {
-    float fltVal = 2.5+2.5*sin(PI2*9500*t)+1.5*sin(PI2*7000*t);//+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
+    float fltVal = 2.5+2.5*sin(PI2*9500*t);//+1.5*sin(PI2*7000*t);//+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
     return (int16_t)(fltVal/0.01953125);
 }
 
