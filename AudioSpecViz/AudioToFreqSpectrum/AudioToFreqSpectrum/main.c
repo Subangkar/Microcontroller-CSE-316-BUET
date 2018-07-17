@@ -16,7 +16,6 @@
 #include "Basic.h"
 #define LCD_BUFFER_SIZE 30
 char lcdStringBuff[LCD_BUFFER_SIZE];
-//void printInLCD(const char* format,con)
 
 
 
@@ -25,13 +24,13 @@ int32_t maxV=0,minV=1023;
 
 
 #define N_SAMPLE_POINTS 32
-#define SAMPLING_FREQ 8000 // 8KHz
+#define SAMPLING_FREQ 16000//8000 // 8KHz
 #define OFFSET_DC_10BIT 327 // 1.6v
 #define OFFSET_DC_8BIT 81 // 1.6v
 
-#define SAMPLING_CYCLE 125 // 1Mhz clock 8khz sampling frequency 1M/8k = 125
-#define SAMPLING_SLEEP_CYCLE 105
-
+#define SAMPLING_PERIOD 62//125 // 1Mhz clock 8khz sampling Period 1M/8k = 125us // timer'll inc every 1/1M = 1us
+#define SAMPLING_SLEEP_CYCLE 52//105
+#define ADC_PERIOD 52 // 13*4 @ 4us per cycle
 
 //int analogTimeBuff[N_SAMPLE_POINTS];
 //#define PI2 6.283185
@@ -201,38 +200,38 @@ void DFT()
 
 
 
-ISR(TIMER1_COMPB_vect, ISR_NAKED)
-{
-	sei();
-	sleep_cpu();
-	reti();
-}
+//ISR(TIMER1_COMPB_vect, ISR_NAKED)
+//{
+	//sei();
+	//sleep_cpu();
+	//reti();
+//}
 
 uint16_t readAnalogValue(uint8_t res);
-ISR (TIMER1_COMPA_vect) {
-	if(analogBuffIndex<N_SAMPLE_POINTS) {
-		//while(ADCSRA&(1<<ADSC));
-		analogTimeBuff[analogBuffIndex++]=readAnalogValue(8);//-OFFSET_DC_8BIT;
-//		if(analogTimeBuff[analogBuffIndex-1]>maxV) maxV = analogTimeBuff[analogBuffIndex-1];
-//		if(analogTimeBuff[analogBuffIndex-1]<minV) minV = analogTimeBuff[analogBuffIndex-1];
-
-		//Lcd8_Clear();
-		//Lcd8_Set_Cursor(1,0);
-		//sprintf(lcdStringBuff,"val : %ld",analogTimeBuff[analogBuffIndex-1]);
-		//sprintf(lcdStringBuff,"%u",analogBuffIndex);
-		//Lcd8_Write_String(lcdStringBuff);
-
-		// must be removed
-		//_delay_us(10);// to show diff of voltages with time
-	}
-}
+//ISR (TIMER1_COMPA_vect) {
+	//if(analogBuffIndex<N_SAMPLE_POINTS) {
+		////while(ADCSRA&(1<<ADSC));
+		//analogTimeBuff[analogBuffIndex++]=readAnalogValue(8);//-OFFSET_DC_8BIT;
+////		if(analogTimeBuff[analogBuffIndex-1]>maxV) maxV = analogTimeBuff[analogBuffIndex-1];
+////		if(analogTimeBuff[analogBuffIndex-1]<minV) minV = analogTimeBuff[analogBuffIndex-1];
+//
+		////Lcd8_Clear();
+		////Lcd8_Set_Cursor(1,0);
+		////sprintf(lcdStringBuff,"val : %ld",analogTimeBuff[analogBuffIndex-1]);
+		////sprintf(lcdStringBuff,"%u",analogBuffIndex);
+		////Lcd8_Write_String(lcdStringBuff);
+//
+		//// must be removed
+		////_delay_us(10);// to show diff of voltages with time
+	//}
+//}
 
 
 int adcCycDur=0;
 void adcConfig()
 {
 	ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+0);
-	ADCSRA =  (1<<ADEN)+3;//prescaler=3 : div=8
+	ADCSRA =  (1<<ADEN)+2;//3;//prescaler=3 : div=8
 	
 	// let max audio frequency = 4kHz
 	// sampling frequency = 8kHz => time = 125us = max_time to get adc value
@@ -242,11 +241,11 @@ void adcConfig()
 }
 
 void timerConfig(){
-	OCR1A = SAMPLING_CYCLE;
-	OCR1B = SAMPLING_SLEEP_CYCLE;
+	OCR1A = SAMPLING_PERIOD;
+	//OCR1B = SAMPLING_SLEEP_CYCLE;
 	TCCR1A = 0;
 	TCCR1B = (1<<WGM12) | (1<<CS10);
-	TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
+	//TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
 	//TIMSK = 0;
 }
 
@@ -266,7 +265,7 @@ void initDataTables()
 uint16_t readAnalogValue(uint8_t res)
 {
 	//adcCycDur=TCNT1;
-	//while(ADCSRA&(1<<ADSC));
+	while(ADCSRA&(1<<ADSC));
 	//adcCycDur=TCNT1-adcCycDur;
 	analogValue = ADCL;
 	if(res==10)
@@ -280,8 +279,24 @@ uint16_t readAnalogValue(uint8_t res)
 
 
 
+void Sampling()
+{
+	TCNT1 = 0;
+	TIFR |= 1<<OCF1A;
+	for(analogBuffIndex=0;analogBuffIndex<N_SAMPLE_POINTS;analogBuffIndex++) {
+		ADCSRA |= (1<<ADSC);
+		while((TIFR & (1<<OCF1A)) == 0);
+		TIME_AMP_ARRAY[analogBuffIndex] = readAnalogValue(8);
+		TIFR |= 1<<OCF1A;
+	}
+}
+
+
 #define SPEC_BIN_MAG_ARRAY specBinBuf
 int16_t specBinBuf[N_SAMPLE_POINTS/2];
+
+#define PRINT_ARRAY SPEC_BIN_MAG_ARRAY
+#define PRINT_ARRAY_STEP 1
 int main(void)
 {
 	DDRD = 0xFF;
@@ -293,49 +308,49 @@ int main(void)
 	timerConfig();
 	Lcd8_Init();
 	initDataTables();
-	sei();
-	set_sleep_mode(SLEEP_MODE_IDLE);
-	sleep_enable();
-	ADCSRA |= (1<<ADSC);// start conversion
-	TCNT1 = 0;
-	//int x=0;
+	//sei();
+	//set_sleep_mode(SLEEP_MODE_IDLE);
+	//sleep_enable();
+	int i;
 	while(1)
 	{
+
+		Sampling();
 		Lcd8_Clear();
+		//Lcd8_Set_Cursor(1,0);
+		//Lcd8_Write_String("Here");
 			
-		if(analogBuffIndex==N_SAMPLE_POINTS)
+		//if(analogBuffIndex==N_SAMPLE_POINTS)
+		//{
+		DFT();
+
+		int i1,i2;
+		forLoop(i,N_SAMPLE_POINTS/2)
 		{
-			DFT();
-			//sprintf(lcdStringBuff,"%d %d",pgm_read_word_near(&cos_lookup[3]),pgm_read_word_near(&cos_lookup[7]));
-			//Lcd8_Write_String(lcdStringBuff);
-
-			int i,i1,i2;
-			forLoop(i,N_SAMPLE_POINTS/2)
-			{
-				i1 = 2*i;
-				i2 = i1+1;
-				SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2)-150;
-				if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
-			}
-			Lcd8_Set_Cursor(1,0);
-			sprintf(lcdStringBuff,"%d %d %d %d",SPEC_BIN_MAG_ARRAY[0],SPEC_BIN_MAG_ARRAY[1],SPEC_BIN_MAG_ARRAY[2],SPEC_BIN_MAG_ARRAY[3]);
-			Lcd8_Write_String(lcdStringBuff);
-
-			Lcd8_Set_Cursor(2,0);
-			sprintf(lcdStringBuff,"%d %d %d %d",SPEC_BIN_MAG_ARRAY[4],SPEC_BIN_MAG_ARRAY[5],SPEC_BIN_MAG_ARRAY[6],SPEC_BIN_MAG_ARRAY[7]);
-			Lcd8_Write_String(lcdStringBuff);
-
-			//Lcd8_Set_Cursor(1,0);
-			sprintf(lcdStringBuff,"MAX : %ld  %ld",maxV,analogTimeBuff[0]);
-			//Lcd8_Write_String(lcdStringBuff);
-			//Lcd8_Set_Cursor(2,0);
-			sprintf(lcdStringBuff,"MIN : %ld  %ld",minV,analogTimeBuff[7]);
-			//Lcd8_Write_String(lcdStringBuff);
-			analogBuffIndex=0;
-			//_delay_ms(100);
+			i1 = 2*i;
+			i2 = i1+1;
+			SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2)-150;
+			if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
 		}
-			ADCSRA |= (1<<ADSC);
-			TCNT1=0;//reset the timer for next time
+			
+		Lcd8_Set_Cursor(1,0);
+		sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[0],PRINT_ARRAY[1*PRINT_ARRAY_STEP],PRINT_ARRAY[2*PRINT_ARRAY_STEP],PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld" 
+		Lcd8_Write_String(lcdStringBuff);
+
+		Lcd8_Set_Cursor(2,0);
+		sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[4*PRINT_ARRAY_STEP],PRINT_ARRAY[5*PRINT_ARRAY_STEP],PRINT_ARRAY[6*PRINT_ARRAY_STEP],PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
+		Lcd8_Write_String(lcdStringBuff);
+		
+		Lcd8_Set_Cursor(1,0);
+		sprintf(lcdStringBuff,"MAX : %ld  %ld",maxV,analogTimeBuff[0]);
+		//Lcd8_Write_String(lcdStringBuff);
+		Lcd8_Set_Cursor(2,0);
+		sprintf(lcdStringBuff,"MIN : %ld  %ld",minV,analogTimeBuff[7]);
+		//Lcd8_Write_String(lcdStringBuff);
+//			analogBuffIndex=0;
+		_delay_ms(750);
+		//}
+		//TCNT1=0;//reset the timer for next time
 	}
 
 }
