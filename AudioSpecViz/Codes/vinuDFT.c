@@ -1,13 +1,19 @@
 #include<stdio.h>
 #include<stdint.h>
 #include<math.h>
-#define N 32
-#define N_SAMPLE_POINTS N
+#define N_SAMPLE_POINTS 32
+//#define N_SAMPLE_POINTS N_SAMPLE_POINTS
 #define SAMPLING_FREQ 20000 // 20KHz
+
+
+
+
+
+
+
+
 #define REAL 0
 #define IMG 1
-
-
 const int16_t cos_lookup[]= {
 	10000,9998,9993,9986,9975,9961,9945,9925,9902,
 	9876,9848,9816,9781,9743,9702,9659,9612,9563,
@@ -132,40 +138,38 @@ const uint8_t degree_lookup[]= {
 	11,95
 };
 
-
-int32_t fx[N];
-int32_t Fu[N/2][2];
-int32_t P[N];
+int32_t analogTimeBuff[N_SAMPLE_POINTS];
+int32_t Pc[N_SAMPLE_POINTS/2][2];
+int32_t P[N_SAMPLE_POINTS];
 // mapped to int
 void DFT()
 {
 	int16_t count,degree;
 	uint8_t u,k;
 	count = 0;
-	for (u=0; u<N/2; u++) {
-		for (k=0; k<N; k++) {
+	for (u=0; u<N_SAMPLE_POINTS/2; u++) {
+		for (k=0; k<N_SAMPLE_POINTS; k++) {
 			degree = degree_lookup[count]*2;
 			count++;
-            // degree = u*k;
-			Fu[u][REAL] +=  fx[k] * cos_lookup[degree];
-			Fu[u][IMG] += -fx[k] * sin_lookup[degree];
+			Pc[u][REAL] +=  analogTimeBuff[k] * cos_lookup[degree];
+			Pc[u][IMG] += -analogTimeBuff[k] * sin_lookup[degree];
 		}
-		Fu[u][REAL] /= N;
-		Fu[u][REAL] /= 10000;
-		Fu[u][IMG] /= N;
-		Fu[u][IMG] /= 10000;
+		Pc[u][REAL] /= N_SAMPLE_POINTS;
+		Pc[u][REAL] /= 10000;
+		Pc[u][IMG] /= N_SAMPLE_POINTS;
+		Pc[u][IMG] /= 10000;
 	}
- 	for (u=1; u<N/2; u++) {
-        if(Fu[u][0]<0)Fu[u][REAL]*=-1;
-        if(Fu[u][1]<0)Fu[u][IMG]*=-1;
-        P[u] = (Fu[u][REAL] + Fu[u][IMG])/4;//(uint8_t)
+ 	for (u=1; u<N_SAMPLE_POINTS/2; u++) {
+        if(Pc[u][0]<0)Pc[u][REAL]*=-1;
+        if(Pc[u][1]<0)Pc[u][IMG]*=-1;
+        P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
     }
 }
 
 #define PI2 6.283185307
 int16_t f(double t)
 {
-    float fltVal = 1.5+2.5*sin(PI2*9500*t)+sin(PI2*7000*t)+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
+    float fltVal = 2.5+2.5*sin(PI2*9500*t)+1.5*sin(PI2*7000*t);//+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
     return (int16_t)(fltVal/0.01953125);
 }
 
@@ -177,16 +181,16 @@ int main()
 
     uint8_t mag;
 	int i;
-    for(i=0;i<N;i++) {
-        fx[i] = f(sample_period*i);
-        // printf("%d ",fx[i]);
+    for(i=0;i<N_SAMPLE_POINTS;i++) {
+        analogTimeBuff[i] = f(sample_period*i);
+        // printf("%d ",analogTimeBuff[i]);
     }
     DFT();
 
-    for(i = 1; i<N/2; i++) {
-        // if(Fu[i][0]<0)Fu[i][REAL]*=-1;
-        // if(Fu[i][1]<0)Fu[i][IMG]*=-1;
-        // P[i] = mag = (uint8_t)(Fu[i][REAL] + Fu[i][IMG])/4;
+    for(i = 1; i<N_SAMPLE_POINTS/2; i++) {
+        // if(Pc[i][0]<0)Pc[i][REAL]*=-1;
+        // if(Pc[i][1]<0)Pc[i][IMG]*=-1;
+        // P[i] = mag = (uint8_t)(Pc[i][REAL] + Pc[i][IMG])/4;
         // if((mag)>7) {
         //     lcd_buf1[i] = (mag) - 7 - 1;
         //     if(lcd_buf1[i] > 7)
@@ -204,7 +208,7 @@ int main()
     fprintf(f, "clear all\n");
    // fprintf(f, "n = [0:%d];\n", N_SAMPLE_POINTS-1);
     fprintf(f, "xre = [ ");
-    for (n=0 ; n<N_SAMPLE_POINTS ; ++n) fprintf(f, "%d ", fx[n]);
+    for (n=0 ; n<N_SAMPLE_POINTS ; ++n) fprintf(f, "%d ", analogTimeBuff[n]);
     fprintf(f, "];\n");
 
     // fprintf(f, "Pre = [ ");
