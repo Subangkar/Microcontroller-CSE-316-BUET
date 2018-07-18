@@ -138,7 +138,7 @@ const uint8_t degree_lookup[]= {
 	11,95
 };
 
-int32_t analogTimeBuff[N_SAMPLE_POINTS];
+int16_t analogTimeBuff[N_SAMPLE_POINTS];
 int32_t Pc[N_SAMPLE_POINTS/2][2];
 int32_t P[N_SAMPLE_POINTS];
 // mapped to int
@@ -148,11 +148,12 @@ void DFT()
 	uint8_t u,k;
 	count = 0;
 	for (u=0; u<N_SAMPLE_POINTS/2; u++) {
+		Pc[u][REAL] = Pc[u][IMG] = 0;
 		for (k=0; k<N_SAMPLE_POINTS; k++) {
 			degree = degree_lookup[count]*2;
 			count++;
-			Pc[u][REAL] +=  analogTimeBuff[k] * cos_lookup[degree];
-			Pc[u][IMG] += -analogTimeBuff[k] * sin_lookup[degree];
+			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * cos_lookup[degree];
+			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * sin_lookup[degree];
 		}
 		Pc[u][REAL] /= N_SAMPLE_POINTS;
 		Pc[u][REAL] /= 10000;
@@ -170,7 +171,8 @@ void DFT()
 int16_t f(double t)
 {
     float fltVal = 2.5+2.5*sin(PI2*9500*t);//+1.5*sin(PI2*7000*t);//+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
-    return (int16_t)(fltVal/0.01953125);
+    // return (int16_t)(fltVal/0.01953125);
+	return 255;
 }
 
 uint8_t lcd_buf1[16];
@@ -211,14 +213,14 @@ int main()
     for (n=0 ; n<N_SAMPLE_POINTS ; ++n) fprintf(f, "%d ", analogTimeBuff[n]);
     fprintf(f, "];\n");
 
-    // fprintf(f, "Pre = [ ");
-    // for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%f ", Pre[k]);
-    // fprintf(f, "];\n");
-    // fprintf(f, "Pim = [ ");
-    // for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%f ", Pim[k]);
-    // fprintf(f, "];\n");
+    fprintf(f, "Pre = [ ");
+    for (k=0 ; k<N_SAMPLE_POINTS/2 ; ++k) fprintf(f, "%d ", Pc[k][REAL]);
+    fprintf(f, "];\n");
+    fprintf(f, "Pim = [ ");
+    for (k=0 ; k<N_SAMPLE_POINTS/2 ; ++k) fprintf(f, "%d ", Pc[k][IMG]);
+    fprintf(f, "];\n");
     fprintf(f, "P = [ ");
-    for (k=0 ; k<N_SAMPLE_POINTS ; ++k) fprintf(f, "%d ", P[k]);
+    for (k=0 ; k<N_SAMPLE_POINTS/2 ; ++k) fprintf(f, "%d ", P[k]);
     fprintf(f, "];\n");
     // fprintf(f,"P=P/%d;\n",N_SAMPLE_POINTS);
     // fprintf(f,"P(2:end-1) = 2*P(2:end-1);\n");
