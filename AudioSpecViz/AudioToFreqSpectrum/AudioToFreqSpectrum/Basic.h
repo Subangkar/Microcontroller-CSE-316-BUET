@@ -98,4 +98,16 @@
 	//}
 //}
 
+#define LCD_BUFFER_SIZE 30
+char lcdStringBuff[LCD_BUFFER_SIZE];
+
+void LCDPrintInt(int32_t x,int row)
+{
+//	Lcd4_Clear();
+				
+	Lcd4_Set_Cursor(row,0);
+	sprintf(lcdStringBuff,"%ld",x);
+	Lcd4_Write_String(lcdStringBuff);
+}
+
 #endif /* BASIC_H_ */

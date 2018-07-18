@@ -155,6 +155,7 @@ void DFT()
 			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * cos_lookup[degree];
 			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * sin_lookup[degree];
 		}
+		printf("%d ",Pc[u][REAL]);
 		Pc[u][REAL] /= N_SAMPLE_POINTS;
 		Pc[u][REAL] /= 10000;
 		Pc[u][IMG] /= N_SAMPLE_POINTS;
