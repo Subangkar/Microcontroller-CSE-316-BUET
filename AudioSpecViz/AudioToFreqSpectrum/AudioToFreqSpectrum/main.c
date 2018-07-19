@@ -8,7 +8,6 @@
 
 
 //#ifndef F_CPU
-//#define F_CPU 500000UL // 1 MHz clock speed
 #define F_CPU 1000000UL // 1 MHz clock speed
 //#define F_CPU 8000000UL // 8 MHz clock speed
 //#endif
@@ -19,16 +18,15 @@
 
 int32_t maxV=0,minV=1023;
 
-
-
 #define N_SAMPLE_POINTS 32
-#define SAMPLING_FREQ 8000 // 8KHz
+#define SAMPLING_FREQ 8000 // 16KHz
 #define OFFSET_DC_10BIT 327 // 1.6v
 #define OFFSET_DC_8BIT 81 // 1.6v
 
 #define SAMPLING_PERIOD 125 // 1Mhz clock 8khz sampling Period 1M/8k = 125us // timer'll inc every 1/1M = 1us
 #define SAMPLING_SLEEP_CYCLE 105
-#define ADC_PERIOD 104 // 13*8 @ 4us per cycle
+#define ADC_PRESCALER 3 //prescaler=2 : div=4
+#define ADC_PERIOD 104 // 13*div @ 4us per cycle
 
 uint16_t analogValue;
 uint8_t analogBuffIndex;
@@ -164,7 +162,7 @@ const uint8_t degree_lookup[] PROGMEM = {
 
 int16_t analogTimeBuff[N_SAMPLE_POINTS];
 int32_t Pc[N_SAMPLE_POINTS/2][2];
-int32_t P[N_SAMPLE_POINTS];
+int16_t P[N_SAMPLE_POINTS];
 // mapped to int
 void DFT()
 {
@@ -198,33 +196,11 @@ void DFT()
 
 
 
-
 uint16_t readAnalogValue(uint8_t res);
 
 
 
 int adcCycDur=0;
-void adcConfig()
-{
-	ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+0);
-	ADCSRA =  (1<<ADEN)+3;//prescaler=3 : div=8
-	
-	// let max audio frequency = 4kHz
-	// sampling frequency = 8kHz => time = 125us = max_time to get adc value
-	// with prescaler = 3 && sys clock = 1MHz
-	// ADC clock = 1M/8 = 125KHz
-	// ADC sample Freq = 125/13 = 9KHz => time_req = 104us < sampling, hence ok
-}
-
-void timerConfig(){
-	OCR1A = SAMPLING_PERIOD;
-	//OCR1B = SAMPLING_SLEEP_CYCLE;
-	TCCR1A = 0;
-	TCCR1B = (1<<WGM12) | (1<<CS10);// 
-	//TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
-	//TIMSK = 0;
-}
-
 
 void initDataTables()
 {
@@ -243,6 +219,28 @@ void initDataTables()
 	}
 
 }
+
+void adcConfig()
+{
+	ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+0);
+	ADCSRA =  (1<<ADEN)+ADC_PRESCALER;
+	
+	// let max audio frequency = 4kHz
+	// sampling frequency = 8kHz => time = 125us = max_time to get adc value
+	// with prescaler = 3 && sys clock = 1MHz
+	// ADC clock = 1M/8 = 125KHz
+	// ADC sample Freq = 125/13 = 9KHz => time_req = 104us < sampling, hence ok
+}
+
+void timerConfig(){
+	OCR1A = SAMPLING_PERIOD;
+	//OCR1B = SAMPLING_SLEEP_CYCLE;
+	TCCR1A = 0;
+	TCCR1B = (1<<WGM12) | (1<<CS10);// 
+	//TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
+	//TIMSK = 0;
+}
+
 
 uint16_t readAnalogValue(uint8_t res)
 {
@@ -318,6 +316,15 @@ int16_t f(double t)
 	return (int16_t)(fltVal/0.01953125);
 }
 
+void testSampling()
+{
+    float sample_period = 1/(float)SAMPLING_FREQ;
+	int i;
+	for(i=0;i<N_SAMPLE_POINTS;i++) {
+		analogTimeBuff[i] = f(sample_period*i);
+	}
+}
+
 
 int main(void)
 {
@@ -328,22 +335,17 @@ int main(void)
 	
 	adcConfig();
 	timerConfig();
-	//Lcd8_Init();
 	Lcd4_Init();
 	initDataTables();
 	//sei();
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
-    float sample_period = 1/(float)SAMPLING_FREQ;
 	while(1)
 	{
-		//Sampling();
-		int i;
-		for(i=0;i<N_SAMPLE_POINTS;i++) {
-			analogTimeBuff[i] = f(sample_period*i);
-		}
+		Sampling();
+		//testSampling();
 
-		DFT();
+		DFT(); // Checked Okay
 		
 		Spectrum();
 

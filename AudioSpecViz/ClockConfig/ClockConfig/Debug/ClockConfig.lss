@@ -3,27 +3,27 @@ ClockConfig.elf:     file format elf32-avr
 
 Sections:
 Idx Name          Size      VMA       LMA       File off  Algn
-  0 .text         0000008e  00000000  00000000  00000054  2**1
+  0 .text         00000086  00000000  00000000  00000054  2**1
                   CONTENTS, ALLOC, LOAD, READONLY, CODE
-  1 .data         00000000  00800060  00800060  000000e2  2**0
+  1 .data         00000000  00800060  00800060  000000da  2**0
                   CONTENTS, ALLOC, LOAD, DATA
-  2 .comment      00000030  00000000  00000000  000000e2  2**0
+  2 .comment      00000030  00000000  00000000  000000da  2**0
                   CONTENTS, READONLY
-  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  00000114  2**2
+  3 .note.gnu.avr.deviceinfo 0000003c  00000000  00000000  0000010c  2**2
                   CONTENTS, READONLY
-  4 .debug_aranges 00000020  00000000  00000000  00000150  2**0
+  4 .debug_aranges 00000020  00000000  00000000  00000148  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000005f1  00000000  00000000  00000170  2**0
+  5 .debug_info   000005f1  00000000  00000000  00000168  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000568  00000000  00000000  00000761  2**0
+  6 .debug_abbrev 00000568  00000000  00000000  00000759  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000023b  00000000  00000000  00000cc9  2**0
+  7 .debug_line   0000023b  00000000  00000000  00000cc1  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000024  00000000  00000000  00000f04  2**2
+  8 .debug_frame  00000024  00000000  00000000  00000efc  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000324  00000000  00000000  00000f28  2**0
+  9 .debug_str    00000324  00000000  00000000  00000f20  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 00000010  00000000  00000000  0000124c  2**0
+ 10 .debug_ranges 00000010  00000000  00000000  00001244  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -59,7 +59,7 @@ Disassembly of section .text:
   5c:	de bf       	out	0x3e, r29	; 62
   5e:	cd bf       	out	0x3d, r28	; 61
   60:	0e 94 36 00 	call	0x6c	; 0x6c <main>
-  64:	0c 94 45 00 	jmp	0x8a	; 0x8a <_exit>
+  64:	0c 94 41 00 	jmp	0x82	; 0x82 <_exit>
 
 00000068 <__bad_interrupt>:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
@@ -75,29 +75,25 @@ int main(void)
   6e:	8a bb       	out	0x1a, r24	; 26
 	while (1) 
     {
-		PORTA = 1;PORTA ^ 1;
-  70:	81 e0       	ldi	r24, 0x01	; 1
-  72:	8b bb       	out	0x1b, r24	; 27
-  74:	9b b3       	in	r25, 0x1b	; 27
+		PORTA = PORTA ^ 1;
+  70:	91 e0       	ldi	r25, 0x01	; 1
+  72:	8b b3       	in	r24, 0x1b	; 27
+  74:	89 27       	eor	r24, r25
+  76:	8b bb       	out	0x1b, r24	; 27
 	#else
 		//round up by default
 		__ticks_dc = (uint32_t)(ceil(fabs(__tmp)));
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-  76:	2f e3       	ldi	r18, 0x3F	; 63
-  78:	3d e0       	ldi	r19, 0x0D	; 13
-  7a:	93 e0       	ldi	r25, 0x03	; 3
-  7c:	21 50       	subi	r18, 0x01	; 1
-  7e:	30 40       	sbci	r19, 0x00	; 0
-  80:	90 40       	sbci	r25, 0x00	; 0
-  82:	e1 f7       	brne	.-8      	; 0x7c <main+0x10>
-  84:	00 c0       	rjmp	.+0      	; 0x86 <main+0x1a>
-  86:	00 00       	nop
-  88:	f4 cf       	rjmp	.-24     	; 0x72 <main+0x6>
+  78:	83 e5       	ldi	r24, 0x53	; 83
+  7a:	8a 95       	dec	r24
+  7c:	f1 f7       	brne	.-4      	; 0x7a <main+0xe>
+  7e:	00 00       	nop
+  80:	f8 cf       	rjmp	.-16     	; 0x72 <main+0x6>
 
-0000008a <_exit>:
-  8a:	f8 94       	cli
+00000082 <_exit>:
+  82:	f8 94       	cli
 
-0000008c <__stop_program>:
-  8c:	ff cf       	rjmp	.-2      	; 0x8c <__stop_program>
+00000084 <__stop_program>:
+  84:	ff cf       	rjmp	.-2      	; 0x84 <__stop_program>

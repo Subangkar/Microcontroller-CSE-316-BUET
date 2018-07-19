@@ -72,7 +72,7 @@ int main()
     dft();
 
     // Output results to MATLAB / Octave M-file for plotting
-    FILE *f = fopen("dftplots.m", "w");
+    FILE *f = fopen("dftFloat.m", "w");
     fprintf(f, "clear all\n", N_SAMPLE_POINTS-1);
    // fprintf(f, "n = [0:%d];\n", N_SAMPLE_POINTS-1);
 

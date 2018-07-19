@@ -189,21 +189,6 @@ int main()
     }
     DFT();
 
-    for(i = 1; i<N_SAMPLE_POINTS/2; i++) {
-        // if(Pc[i][0]<0)Pc[i][REAL]*=-1;
-        // if(Pc[i][1]<0)Pc[i][IMG]*=-1;
-        // P[i] = mag = (uint8_t)(Pc[i][REAL] + Pc[i][IMG])/4;
-        // if((mag)>7) {
-        //     lcd_buf1[i] = (mag) - 7 - 1;
-        //     if(lcd_buf1[i] > 7)
-        //     lcd_buf1[i] = 7;
-        //     lcd_buf2[i] = 7;
-        // }
-        // else {
-        //     lcd_buf1[i] = ' ';
-        //     lcd_buf2[i] = mag;
-        // }
-    }
     int n,k;
     // Output results to MATLAB / Octave M-file for plotting
     FILE *f = fopen("dftInteger.m", "w");
