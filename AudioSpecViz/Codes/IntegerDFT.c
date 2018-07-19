@@ -3,7 +3,7 @@
 #include<math.h>
 #define N_SAMPLE_POINTS 32
 //#define N_SAMPLE_POINTS N_SAMPLE_POINTS
-#define SAMPLING_FREQ 20000 // 20KHz
+#define SAMPLING_FREQ 8000 // 20KHz
 
 
 
@@ -152,10 +152,9 @@ void DFT()
 		for (k=0; k<N_SAMPLE_POINTS; k++) {
 			degree = degree_lookup[count]*2;
 			count++;
-			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * cos_lookup[degree];
-			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * sin_lookup[degree];
+			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * (int16_t)(cos_lookup[degree]);
+			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * (int16_t)(sin_lookup[degree]);
 		}
-		printf("%d ",Pc[u][REAL]);
 		Pc[u][REAL] /= N_SAMPLE_POINTS;
 		Pc[u][REAL] /= 10000;
 		Pc[u][IMG] /= N_SAMPLE_POINTS;
@@ -165,15 +164,15 @@ void DFT()
         if(Pc[u][0]<0)Pc[u][REAL]*=-1;
         if(Pc[u][1]<0)Pc[u][IMG]*=-1;
         P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
-    }
+   }
 }
 
 #define PI2 6.283185307
 int16_t f(double t)
 {
     float fltVal = 2.5+2.5*sin(PI2*9500*t);//+1.5*sin(PI2*7000*t);//+2*sin(PI2*8000*t)+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
-    // return (int16_t)(fltVal/0.01953125);
-	return 255;
+    return (int16_t)(fltVal/0.01953125);
+	//return 255;
 }
 
 uint8_t lcd_buf1[16];
@@ -207,7 +206,7 @@ int main()
     }
     int n,k;
     // Output results to MATLAB / Octave M-file for plotting
-    FILE *f = fopen("dftVinu.m", "w");
+    FILE *f = fopen("dftInteger.m", "w");
     fprintf(f, "clear all\n");
    // fprintf(f, "n = [0:%d];\n", N_SAMPLE_POINTS-1);
     fprintf(f, "xre = [ ");

@@ -14,8 +14,8 @@ int main(void)
     DDRA=0xFF;
 	while (1) 
     {
-		PORTA = PORTA ^ 1;
-		_delay_us(500);
+		PORTA = 1;PORTA ^ 1;
+		_delay_ms(1000);
     }
 }
 

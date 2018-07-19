@@ -81,7 +81,7 @@ const int16_t cos_lookup[] PROGMEM = {
 	9876,9902,9925,9945,9961,9975,9986,9993,9998
 };
 
-const int16_t sin_lookup[] PROGMEM= {
+const int16_t sin_lookup[] PROGMEM = {
 	0,174,348,523,697,871,1045,1218,1391,
 	1564,1736,1908,2079,2249,2419,2588,2756,2923,
 	3090,3255,3420,3583,3746,3907,4067,4226,4383,
@@ -124,7 +124,7 @@ const int16_t sin_lookup[] PROGMEM= {
 	-1564,-1391,-1218,-1045,-871,-697,-523,-348,-174
 };
 
-const uint8_t degree_lookup[]= {
+const uint8_t degree_lookup[] PROGMEM = {
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 	0,0,0,5,11,16,22,28,33,39,45,50,56,61,67,
@@ -175,24 +175,22 @@ void DFT()
 		Pc[u][REAL] = Pc[u][IMG] = 0;
 		//_delay_ms(500);
 		for (k=0; k<N_SAMPLE_POINTS; k++) {
-			degree = degree_lookup[count]*2;
+			degree = pgm_read_byte_near(degree_lookup+count)*2;
 			count++;
 			//LCDPrintInt(analogTimeBuff[k],1);
-			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * pgm_read_word_near(cos_lookup+degree);
-			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * pgm_read_word_near(sin_lookup+degree);
+			Pc[u][REAL] +=  (int32_t)analogTimeBuff[k] * ((int16_t)pgm_read_word_near(cos_lookup+degree));
+			Pc[u][IMG] += -(int32_t)analogTimeBuff[k] * ((int16_t)pgm_read_word_near(sin_lookup+degree));
 		}
-		//Lcd4_Clear();
-		//LCDPrintInt(Pc[u][REAL],2);
 		Pc[u][REAL] /= N_SAMPLE_POINTS;
 		Pc[u][REAL] /= 10000;
 		Pc[u][IMG] /= N_SAMPLE_POINTS;
 		Pc[u][IMG] /= 10000;
-		//_delay_ms(1000);
 	}
 	for (u=1; u<N_SAMPLE_POINTS/2; u++) {
 		if(Pc[u][0]<0)Pc[u][REAL]*=-1;
 		if(Pc[u][1]<0)Pc[u][IMG]*=-1;
 		P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
+		// Checked till Here
 		//if(P[u]<minV) minV = P[u]; // && P[u]
 		//if(P[u]>maxV) maxV = P[u];
 	}
@@ -214,15 +212,15 @@ void adcConfig()
 	// let max audio frequency = 4kHz
 	// sampling frequency = 8kHz => time = 125us = max_time to get adc value
 	// with prescaler = 3 && sys clock = 1MHz
-	// adc clock = 1M/8 = 125KHz
-	// adc sample Freq = 125/13 = 9KHz => time_req = 104us < sampling, hence ok
+	// ADC clock = 1M/8 = 125KHz
+	// ADC sample Freq = 125/13 = 9KHz => time_req = 104us < sampling, hence ok
 }
 
 void timerConfig(){
 	OCR1A = SAMPLING_PERIOD;
 	//OCR1B = SAMPLING_SLEEP_CYCLE;
 	TCCR1A = 0;
-	TCCR1B = (1<<WGM12) | (1<<CS10);
+	TCCR1B = (1<<WGM12) | (1<<CS10);// 
 	//TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
 	//TIMSK = 0;
 }
@@ -252,11 +250,8 @@ uint16_t readAnalogValue(uint8_t res)
 	while(ADCSRA&(1<<ADSC));
 	//adcCycDur=TCNT1-adcCycDur;
 	analogValue = ADCL;
-	if(res==10)
-	analogValue = (analogValue>>6)|(ADCH<<2);
-	else
-	analogValue = ADCH;
-	//ADCSRA |= (1<<ADSC);// start conversion
+	if(res==10)	analogValue = (analogValue>>6)|(ADCH<<2);
+	else analogValue = ADCH;
 	return analogValue;
 }
 
@@ -289,17 +284,19 @@ void Spectrum()
 		i1 = 2*i;
 		i2 = i1+1;
 		SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2);
-		if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
+		//if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
 	}
 
 	Lcd4_Clear();
 	
 	Lcd4_Set_Cursor(1,0);
 	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[0],(int)PRINT_ARRAY[1*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[2*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
+	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[0],PRINT_ARRAY[1*PRINT_ARRAY_STEP],PRINT_ARRAY[2*PRINT_ARRAY_STEP],PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
 	Lcd4_Write_String(lcdStringBuff);
 
 	Lcd4_Set_Cursor(2,0);
 	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[4*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[5*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[6*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
+	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[4*PRINT_ARRAY_STEP],PRINT_ARRAY[5*PRINT_ARRAY_STEP],PRINT_ARRAY[6*PRINT_ARRAY_STEP],PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
 	Lcd4_Write_String(lcdStringBuff);
 	
 	Lcd4_Set_Cursor(1,0);
@@ -311,6 +308,16 @@ void Spectrum()
 	//Lcd4_Write_String(lcdStringBuff);
 
 }
+
+
+
+#define PI2 6.283185307
+int16_t f(double t)
+{
+	float fltVal = 2.5+2.5*sin(PI2*450*t)+1.5*sin(PI2*3500*t)+2*sin(PI2*2100*t);//+2.5*sin(PI2*9000*t)+2.5*sin(PI2*3000*t)+2.5*cos(PI2*1500*t);
+	return (int16_t)(fltVal/0.01953125);
+}
+
 
 int main(void)
 {
@@ -327,10 +334,14 @@ int main(void)
 	//sei();
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
+    float sample_period = 1/(float)SAMPLING_FREQ;
 	while(1)
 	{
-
-		Sampling();
+		//Sampling();
+		int i;
+		for(i=0;i<N_SAMPLE_POINTS;i++) {
+			analogTimeBuff[i] = f(sample_period*i);
+		}
 
 		DFT();
 		
