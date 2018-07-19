@@ -13,17 +13,17 @@ Idx Name          Size      VMA       LMA       File off  Algn
                   CONTENTS, READONLY
   4 .debug_aranges 00000020  00000000  00000000  00000148  2**0
                   CONTENTS, READONLY, DEBUGGING
-  5 .debug_info   000005f1  00000000  00000000  00000168  2**0
+  5 .debug_info   000005f2  00000000  00000000  00000168  2**0
                   CONTENTS, READONLY, DEBUGGING
-  6 .debug_abbrev 00000568  00000000  00000000  00000759  2**0
+  6 .debug_abbrev 00000568  00000000  00000000  0000075a  2**0
                   CONTENTS, READONLY, DEBUGGING
-  7 .debug_line   0000023b  00000000  00000000  00000cc1  2**0
+  7 .debug_line   0000023b  00000000  00000000  00000cc2  2**0
                   CONTENTS, READONLY, DEBUGGING
-  8 .debug_frame  00000024  00000000  00000000  00000efc  2**2
+  8 .debug_frame  00000024  00000000  00000000  00000f00  2**2
                   CONTENTS, READONLY, DEBUGGING
-  9 .debug_str    00000324  00000000  00000000  00000f20  2**0
+  9 .debug_str    00000324  00000000  00000000  00000f24  2**0
                   CONTENTS, READONLY, DEBUGGING
- 10 .debug_ranges 00000010  00000000  00000000  00001244  2**0
+ 10 .debug_ranges 00000010  00000000  00000000  00001248  2**0
                   CONTENTS, READONLY, DEBUGGING
 
 Disassembly of section .text:
@@ -65,8 +65,8 @@ Disassembly of section .text:
   68:	0c 94 00 00 	jmp	0	; 0x0 <__vectors>
 
 0000006c <main>:
-#define F_CPU 1000000
-#include <util/delay.h>
+#define FREQ_TO_GEN 300
+#define usDELAY (1000000/FREQ_TO_GEN)
 
 int main(void)
 {
@@ -86,10 +86,10 @@ int main(void)
 	#endif
 
 	__builtin_avr_delay_cycles(__ticks_dc);
-  78:	83 e5       	ldi	r24, 0x53	; 83
-  7a:	8a 95       	dec	r24
-  7c:	f1 f7       	brne	.-4      	; 0x7a <main+0xe>
-  7e:	00 00       	nop
+  78:	e1 e4       	ldi	r30, 0x41	; 65
+  7a:	f3 e0       	ldi	r31, 0x03	; 3
+  7c:	31 97       	sbiw	r30, 0x01	; 1
+  7e:	f1 f7       	brne	.-4      	; 0x7c <main+0x10>
   80:	f8 cf       	rjmp	.-16     	; 0x72 <main+0x6>
 
 00000082 <_exit>:

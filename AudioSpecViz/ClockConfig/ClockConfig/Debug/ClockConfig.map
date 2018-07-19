@@ -355,10 +355,10 @@ END GROUP
 .debug_pubnames
  *(.debug_pubnames)
 
-.debug_info     0x00000000      0x5f1
+.debug_info     0x00000000      0x5f2
  *(.debug_info .gnu.linkonce.wi.*)
  .debug_info    0x00000000      0x4e6 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.150/gcc/dev/atmega32/avr5/crtatmega32.o
- .debug_info    0x000004e6      0x10b main.o
+ .debug_info    0x000004e6      0x10c main.o
 
 .debug_abbrev   0x00000000      0x568
  *(.debug_abbrev)
