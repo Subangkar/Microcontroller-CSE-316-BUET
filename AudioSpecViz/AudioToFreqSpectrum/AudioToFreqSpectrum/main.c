@@ -13,12 +13,14 @@
 //#endif
 
 #include "Basic.h"
+#include "DotMatrix.h"
 
 
 
 int32_t maxV=0,minV=1023;
 
 #define N_SAMPLE_POINTS 32
+#define N_BINS 8
 #define SAMPLING_FREQ 8000 // 16KHz
 #define OFFSET_DC_10BIT 327 // 1.6v
 #define OFFSET_DC_8BIT 81 // 1.6v
@@ -202,6 +204,15 @@ uint16_t readAnalogValue(uint8_t res);
 
 int adcCycDur=0;
 
+void PORT_Config()
+{
+	MCUCSR |= (1<<JTD);
+	MCUCSR |= (1<<JTD);
+	DDRD = 0xFF;
+	DDRC = 0xFF;
+	DDRB = 0xFF;	
+}
+
 void initDataTables()
 {
 	analogBuffIndex=0;
@@ -236,11 +247,19 @@ void timerConfig(){
 	OCR1A = SAMPLING_PERIOD;
 	//OCR1B = SAMPLING_SLEEP_CYCLE;
 	TCCR1A = 0;
-	TCCR1B = (1<<WGM12) | (1<<CS10);// 
+	TCCR1B = (1<<WGM12) | (1<<CS10);//
 	//TIMSK = (1<<OCIE1A)|(1<<OCIE1B);
 	//TIMSK = 0;
 }
 
+void UART_Config(){
+	UCSRA = 0x00 ;
+	UCSRB = 0x18 ;
+	UCSRB |= (1<<RXCIE);
+	UCSRC = 0x86 ;
+	UBRRL = 0x33 ;
+	UBRRH = 0x00 ;
+}
 
 uint16_t readAnalogValue(uint8_t res)
 {
@@ -251,6 +270,17 @@ uint16_t readAnalogValue(uint8_t res)
 	if(res==10)	analogValue = (analogValue>>6)|(ADCH<<2);
 	else analogValue = ADCH;
 	return analogValue;
+}
+
+
+
+void UART_send(unsigned char data){
+	while((UCSRA & (1<<UDRE))==0);
+	UDR = data ;
+}
+unsigned char UART_receive(){
+	while(((UCSRA)&(1<<RXC))==0);
+	return UDR ;
 }
 
 
@@ -269,7 +299,7 @@ void Sampling()
 		TIFR |= 1<<OCF1A;
 		ADCSRA |= (1<<ADSC);
 		while((TIFR & (1<<OCF1A)) == 0);
-		TIME_AMP_ARRAY[analogBuffIndex] = readAnalogValue(8);
+		TIME_AMP_ARRAY[analogBuffIndex] = readAnalogValue(8);//(readAnalogValue(8)-120)*3;//OFFSET_DC_8BIT)*2;
 	}
 }
 
@@ -285,28 +315,67 @@ void Spectrum()
 		//if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
 	}
 
-	Lcd4_Clear();
+	//Lcd4_Clear();
 	
-	Lcd4_Set_Cursor(1,0);
-	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[0],(int)PRINT_ARRAY[1*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[2*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
+	//Lcd4_Set_Cursor(1,0);
+	//sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[0],(int)PRINT_ARRAY[1*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[2*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
 	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[0],PRINT_ARRAY[1*PRINT_ARRAY_STEP],PRINT_ARRAY[2*PRINT_ARRAY_STEP],PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
-	Lcd4_Write_String(lcdStringBuff);
+	//Lcd4_Write_String(lcdStringBuff);
 
-	Lcd4_Set_Cursor(2,0);
-	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[4*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[5*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[6*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
+	//Lcd4_Set_Cursor(2,0);
+	//sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[4*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[5*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[6*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
 	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[4*PRINT_ARRAY_STEP],PRINT_ARRAY[5*PRINT_ARRAY_STEP],PRINT_ARRAY[6*PRINT_ARRAY_STEP],PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
-	Lcd4_Write_String(lcdStringBuff);
+	//Lcd4_Write_String(lcdStringBuff);
 	
-	Lcd4_Set_Cursor(1,0);
+	//Lcd4_Set_Cursor(1,0);
 	//sprintf(lcdStringBuff,"MAX : %ld  %d",maxV,analogTimeBuff[0]);
 	//Lcd4_Write_String(lcdStringBuff);
 
-	Lcd4_Set_Cursor(2,0);
+	//Lcd4_Set_Cursor(2,0);
 	//sprintf(lcdStringBuff,"MIN : %ld  %d",minV,analogTimeBuff[7]);
 	//Lcd4_Write_String(lcdStringBuff);
 
 }
 
+int16_t transFerIdx;
+ISR(USART_RXC_vect)
+{
+	char ReceivedByte;
+	ReceivedByte = UDR; // Fetch the received byte value into the variable "ByteReceived"
+	if(ReceivedByte!=0)
+	{
+		transFerIdx=0;
+	}
+}
+
+void TransferData()
+{
+	unsigned char data=0x00;
+	UART_send(35);
+	for (transFerIdx=0;transFerIdx<N_BINS;++transFerIdx)
+	{
+		data = 2*transFerIdx;//SPEC_BIN_MAG_ARRAY[i];
+		PORTB=1;
+		UART_send(data);
+		PORTB=0;
+		//data=UART_receive();
+		//if(data!=0)
+		//{
+			//transFerIdx=0;
+			//continue;
+		//}
+	}
+}
+
+void DrawInDot()
+{
+	for (int i=0;i<N_BINS;++i)
+	{
+		buffer[i] = SPEC_BIN_MAG_ARRAY[i];
+	}
+	makeSymbol();
+	draw();
+}
 
 
 #define PI2 6.283185307
@@ -318,7 +387,7 @@ int16_t f(double t)
 
 void testSampling()
 {
-    float sample_period = 1/(float)SAMPLING_FREQ;
+	float sample_period = 1/(float)SAMPLING_FREQ;
 	int i;
 	for(i=0;i<N_SAMPLE_POINTS;i++) {
 		analogTimeBuff[i] = f(sample_period*i);
@@ -328,16 +397,15 @@ void testSampling()
 
 int main(void)
 {
-	DDRD = 0xFF;
-	DDRC = 0xFF;
 
-
+	PORT_Config();
 	
 	adcConfig();
 	timerConfig();
-	Lcd4_Init();
+	//UART_Config();
 	initDataTables();
-	//sei();
+	//Lcd4_Init();
+
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
 	while(1)
@@ -348,6 +416,10 @@ int main(void)
 		DFT(); // Checked Okay
 		
 		Spectrum();
+		
+		//TransferData();
+		DrawInDot();
+		
 
 		_delay_ms(750);
 	}

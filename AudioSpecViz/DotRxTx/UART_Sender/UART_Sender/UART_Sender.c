@@ -28,8 +28,7 @@ void UART_init(){
 	UCSRB = 0x18 ;
 	UCSRC = 0x86 ;
 	UBRRL = 0x33 ;
-	UBRRH = 0x00 ;
-	
+	UBRRH = 0x00 ;	
 }
 
 void UART_send(unsigned char data){
