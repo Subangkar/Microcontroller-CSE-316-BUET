@@ -418,10 +418,12 @@ int main(void)
 		Spectrum();
 		
 		//TransferData();
+		clearDot();
 		DrawInDot();
-		
+		//for(int i=0;i<8;i++) buffer[i]=0;
 
-		_delay_ms(750);
+		//_delay_ms(200);
+		clearDot();
 	}
 
 }

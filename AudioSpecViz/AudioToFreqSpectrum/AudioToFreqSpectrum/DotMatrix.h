@@ -46,29 +46,30 @@ void makeSymbolX(){
 
 void makeSymbol(){
 	for(int i=0;i<N;i++){
-		if(buffer[i]>10)	 symbol[i]=0xFF;
-		else if(buffer[i]>9) symbol[i]=0x7F;
-		else if(buffer[i]>8) symbol[i]=0x3F;
-		else if(buffer[i]>7) symbol[i]=0x1F;
-		else if(buffer[i]>6) symbol[i]=0x0F;
-		else if(buffer[i]>5) symbol[i]=0x07;
-		else if(buffer[i]>4) symbol[i]=0x03;
+		if(buffer[i]>14)	 symbol[i]=0xFF;
+		else if(buffer[i]>11)symbol[i]=0x7F;
+		else if(buffer[i]>9) symbol[i]=0x3F;
+		else if(buffer[i]>8) symbol[i]=0x1F;
+		else if(buffer[i]>7) symbol[i]=0x0F;
+		else if(buffer[i]>4) symbol[i]=0x07;
+		else if(buffer[i]>3) symbol[i]=0x03;
 		else if(buffer[i]>1) symbol[i]=0x01;
+		else				 symbol[i] = 0x00;
 	}
 }
 
 void draw(){
 	int i;
 	int k;
-	for(k=0;k<700;k++){		
+	for(k=0;k<700;k++){
 		for(i=0;i<N;i++)
 		{
 			ROW = 0;
-			if(i>3){
+			if(symbol[i]<0x0F){
 				GREEN_COLM = ~(symbol[i]);
 				RED_COLM = OFF_FULL_COLM;
 			}
-			else if(i<=3){
+			else {
 				GREEN_COLM = OFF_FULL_COLM;
 				RED_COLM =  ~(symbol[i]);
 			}
@@ -78,4 +79,12 @@ void draw(){
 		}
 	}
 }
+
+void clearDot()
+{
+	ROW = 0xFF;
+	GREEN_COLM = OFF_FULL_COLM;
+	RED_COLM = OFF_FULL_COLM;
+}
+
 #endif /* DOTMATRIX_H_ */
