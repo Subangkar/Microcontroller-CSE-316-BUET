@@ -8,3 +8,10 @@
 *.pdsbak
 *.workspace
 AudioSpecViz/Codes/.vscode/settings.json
+*.elf
+*.hex
+*.o
+*.lss
+*.srec
+*.map
+
