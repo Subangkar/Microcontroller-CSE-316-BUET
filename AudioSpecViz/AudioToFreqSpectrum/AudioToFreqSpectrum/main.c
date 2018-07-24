@@ -12,6 +12,8 @@
 //#define F_CPU 8000000UL // 8 MHz clock speed
 //#endif
 
+#define DOT_LOOP_NO 200
+
 #include "Basic.h"
 #include "DotMatrix.h"
 
@@ -162,6 +164,10 @@ const uint8_t degree_lookup[] PROGMEM = {
 	11,95
 };
 
+
+
+void DrawInDot();
+
 int16_t analogTimeBuff[N_SAMPLE_POINTS];
 int32_t Pc[N_SAMPLE_POINTS/2][2];
 int16_t P[N_SAMPLE_POINTS];
@@ -185,11 +191,13 @@ void DFT()
 		Pc[u][REAL] /= 10000;
 		Pc[u][IMG] /= N_SAMPLE_POINTS;
 		Pc[u][IMG] /= 10000;
+		//DrawInDot();
 	}
 	for (u=1; u<N_SAMPLE_POINTS/2; u++) {
 		if(Pc[u][0]<0)Pc[u][REAL]*=-1;
 		if(Pc[u][1]<0)Pc[u][IMG]*=-1;
 		P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
+		//DrawInDot();
 		// Checked till Here
 		//if(P[u]<minV) minV = P[u]; // && P[u]
 		//if(P[u]>maxV) maxV = P[u];
@@ -311,6 +319,9 @@ void Spectrum()
 	{
 		i1 = 2*i;
 		i2 = i1+1;
+		//if(N_SAMPLE_POINTS<=16)
+		//SPEC_BIN_MAG_ARRAY[i] = FREQ_MAG_ARRAY[i];		
+		//else
 		SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2);
 		//if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
 	}
@@ -412,18 +423,20 @@ int main(void)
 	{
 		Sampling();
 		//testSampling();
+		//DrawInDot();
 
 		DFT(); // Checked Okay
 		
 		Spectrum();
 		
 		//TransferData();
-		clearDot();
+		
+		//clearDot();
 		DrawInDot();
 		//for(int i=0;i<8;i++) buffer[i]=0;
 
 		//_delay_ms(200);
-		clearDot();
+		//clearDot();
 	}
 
 }

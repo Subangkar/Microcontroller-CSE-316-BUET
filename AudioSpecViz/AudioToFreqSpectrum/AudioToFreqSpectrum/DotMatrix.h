@@ -9,6 +9,9 @@
 #ifndef DOTMATRIX_H_
 #define DOTMATRIX_H_
 
+#ifndef DOT_LOOP_NO
+#define DOT_LOOP_NO 500
+#endif
 
 
 
@@ -61,11 +64,11 @@ void makeSymbol(){
 void draw(){
 	int i;
 	int k;
-	for(k=0;k<700;k++){
+	for(k=0;k<DOT_LOOP_NO;k++){
 		for(i=0;i<N;i++)
 		{
 			ROW = 0;
-			if(symbol[i]<0x0F){
+			if(symbol[i]<=0x0F){
 				GREEN_COLM = ~(symbol[i]);
 				RED_COLM = OFF_FULL_COLM;
 			}
