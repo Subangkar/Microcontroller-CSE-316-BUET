@@ -28,7 +28,7 @@
 
 
 
-#define N 8
+#define N 16//8
 unsigned char symbol[N];
 unsigned char buffer[N];
 
@@ -46,6 +46,17 @@ void makeSymbolX(){
 	symbol[7] = 0x00;
 }
 
+void makeSymbolX2(){
+	symbol[8+0]=0x00;
+	symbol[8+1] =0x00;
+	symbol[8+2]=0b00100100;
+	symbol[8+3] =0b00011000;
+	symbol[8+4] =0b00011000;
+	symbol[8+5]=0b00100100;
+	symbol[8+6]=0x00;
+	symbol[8+7] = 0x00;
+}
+
 
 void makeSymbol(){
 	for(int i=0;i<N;i++){
@@ -57,7 +68,7 @@ void makeSymbol(){
 		else if(buffer[i]>4) symbol[i]=0x07;
 		else if(buffer[i]>3) symbol[i]=0x03;
 		else if(buffer[i]>1) symbol[i]=0x01;
-		else				 symbol[i] = 0x00;
+		else				 symbol[i]=0x00;
 	}
 }
 
@@ -67,7 +78,7 @@ void draw(){
 	for(k=0;k<DOT_LOOP_NO;k++){
 		for(i=0;i<N;i++)
 		{
-			ROW = 0;
+			ROW = i;
 			if(symbol[i]<=0x0F){
 				GREEN_COLM = ~(symbol[i]);
 				RED_COLM = OFF_FULL_COLM;
@@ -76,16 +87,15 @@ void draw(){
 				GREEN_COLM = OFF_FULL_COLM;
 				RED_COLM =  ~(symbol[i]);
 			}
-			ROW = 1<<i;
+			//ROW = 1<<i;
 			_delay_us(300);
-			//
 		}
 	}
 }
 
 void clearDot()
 {
-	ROW = 0xFF;
+	ROW = ON_FULL_ROW;
 	GREEN_COLM = OFF_FULL_COLM;
 	RED_COLM = OFF_FULL_COLM;
 }

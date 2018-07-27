@@ -12,7 +12,7 @@
 //#define F_CPU 8000000UL // 8 MHz clock speed
 //#endif
 
-#define DOT_LOOP_NO 200
+#define DOT_LOOP_NO 500
 
 #include "Basic.h"
 #include "DotMatrix.h"
@@ -22,7 +22,7 @@
 int32_t maxV=0,minV=1023;
 
 #define N_SAMPLE_POINTS 32
-#define N_BINS 8
+#define N_BINS 16//8
 #define SAMPLING_FREQ 8000 // 16KHz
 #define OFFSET_DC_10BIT 327 // 1.6v
 #define OFFSET_DC_8BIT 81 // 1.6v
@@ -260,15 +260,6 @@ void timerConfig(){
 	//TIMSK = 0;
 }
 
-void UART_Config(){
-	UCSRA = 0x00 ;
-	UCSRB = 0x18 ;
-	UCSRB |= (1<<RXCIE);
-	UCSRC = 0x86 ;
-	UBRRL = 0x33 ;
-	UBRRH = 0x00 ;
-}
-
 uint16_t readAnalogValue(uint8_t res)
 {
 	//adcCycDur=TCNT1;
@@ -281,15 +272,6 @@ uint16_t readAnalogValue(uint8_t res)
 }
 
 
-
-void UART_send(unsigned char data){
-	while((UCSRA & (1<<UDRE))==0);
-	UDR = data ;
-}
-unsigned char UART_receive(){
-	while(((UCSRA)&(1<<RXC))==0);
-	return UDR ;
-}
 
 
 
@@ -314,17 +296,23 @@ void Sampling()
 void Spectrum()
 {
 	int i;
-	int i1,i2;
-	forLoop(i,N_SAMPLE_POINTS/2)
+	for (i=0;i<N_BINS;++i)
 	{
-		i1 = 2*i;
-		i2 = i1+1;
-		//if(N_SAMPLE_POINTS<=16)
-		//SPEC_BIN_MAG_ARRAY[i] = FREQ_MAG_ARRAY[i];		
-		//else
-		SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2);
-		//if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
+		//buffer[i] = SPEC_BIN_MAG_ARRAY[i];
+		buffer[i] = FREQ_MAG_ARRAY[i];
 	}
+	//int i;
+	//int i1,i2;
+	//forLoop(i,N_SAMPLE_POINTS/2)
+	//{
+		//i1 = 2*i;
+		//i2 = i1+1;
+		////if(N_SAMPLE_POINTS<=16)
+		////SPEC_BIN_MAG_ARRAY[i] = FREQ_MAG_ARRAY[i];		
+		////else
+		//SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2);
+		////if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
+	//}
 
 	//Lcd4_Clear();
 	
@@ -348,43 +336,12 @@ void Spectrum()
 
 }
 
-int16_t transFerIdx;
-ISR(USART_RXC_vect)
-{
-	char ReceivedByte;
-	ReceivedByte = UDR; // Fetch the received byte value into the variable "ByteReceived"
-	if(ReceivedByte!=0)
-	{
-		transFerIdx=0;
-	}
-}
-
-void TransferData()
-{
-	unsigned char data=0x00;
-	UART_send(35);
-	for (transFerIdx=0;transFerIdx<N_BINS;++transFerIdx)
-	{
-		data = 2*transFerIdx;//SPEC_BIN_MAG_ARRAY[i];
-		PORTB=1;
-		UART_send(data);
-		PORTB=0;
-		//data=UART_receive();
-		//if(data!=0)
-		//{
-			//transFerIdx=0;
-			//continue;
-		//}
-	}
-}
 
 void DrawInDot()
 {
-	for (int i=0;i<N_BINS;++i)
-	{
-		buffer[i] = SPEC_BIN_MAG_ARRAY[i];
-	}
 	makeSymbol();
+	//makeSymbolX();
+	//makeSymbolX2();
 	draw();
 }
 
@@ -419,6 +376,7 @@ int main(void)
 
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
+	clearDot();
 	while(1)
 	{
 		Sampling();
@@ -431,10 +389,7 @@ int main(void)
 		
 		//TransferData();
 		
-		//clearDot();
 		DrawInDot();
-		//for(int i=0;i<8;i++) buffer[i]=0;
-
 		//_delay_ms(200);
 		//clearDot();
 	}
