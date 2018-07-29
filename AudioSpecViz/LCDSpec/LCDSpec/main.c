@@ -6,13 +6,13 @@
 */
 
 
-
+//int counter = 0;
 //#ifndef F_CPU
 #define F_CPU 1000000UL // 1 MHz clock speed
 //#define F_CPU 8000000UL // 8 MHz clock speed
 //#endif
 
-#define DOT_LOOP_NO 100//500
+#define DOT_LOOP_NO 200//500
 
 #define INP_SELECT_PORT PINB
 #define INP_SELECT_PIN 4
@@ -197,10 +197,6 @@ void DFT()
 		if(Pc[u][0]<0)Pc[u][REAL]*=-1;
 		if(Pc[u][1]<0)Pc[u][IMG]*=-1;
 		P[u] = (Pc[u][REAL] + Pc[u][IMG])/4;//(uint8_t)
-		//DrawInDot();
-		// Checked till Here
-		//if(P[u]<minV) minV = P[u]; // && P[u]
-		//if(P[u]>maxV) maxV = P[u];
 	}
 }
 
@@ -241,14 +237,11 @@ void initDataTables()
 
 void adcConfig()
 {
-	//ADCSRA =  (0<<ADEN);
-	if((PINB&(1<<4))) ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+1);
-	else ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+0);
-	//0->ADC0 1->ADC1
-	//unsigned char adcSrc=1;//=!=0;
-	//if((INP_SELECT_PORT&(1<<INP_SELECT_PIN))) adcSrc=1;
-	//else adcSrc=0;
-	//ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+0);// 0->ADC0 1->ADC1
+	ADCSRA =  (0<<ADEN);
+	unsigned char adcSrc=1;//=!=0;
+	if((INP_SELECT_PORT&(1<<INP_SELECT_PIN))) adcSrc=1;
+	else adcSrc=0;
+	ADMUX = (((0<<REFS1)|(1<<REFS0)|(1<<ADLAR))+adcSrc);// 0->ADC0 1->ADC1
 	ADCSRA =  (1<<ADEN)+ADC_PRESCALER;
 	
 	// let max audio frequency = 4kHz
@@ -280,9 +273,9 @@ uint16_t readAnalogValue(uint8_t res)
 
 void resetToInitial(){
 	adcConfig();
-	timerConfig();
-	initDataTables();
-	clearDot();
+	// timerConfig();
+	// initDataTables();
+	//clearDot();
 }
 
 
@@ -290,7 +283,7 @@ void resetToInitial(){
 #define SPEC_BIN_MAG_ARRAY specBinBuf
 int16_t specBinBuf[N_SAMPLE_POINTS/2];
 
-#define PRINT_ARRAY SPEC_BIN_MAG_ARRAY
+#define PRINT_ARRAY TIME_AMP_ARRAY
 #define PRINT_ARRAY_STEP 1
 
 
@@ -307,44 +300,19 @@ void Sampling()
 
 void Spectrum()
 {
-	int i;
-	for (i=0;i<N_BINS;++i)
-	{
-		//buffer[i] = SPEC_BIN_MAG_ARRAY[i];
-		buffer[i] = FREQ_MAG_ARRAY[i];
-	}
-	//int i;
-	//int i1,i2;
-	//forLoop(i,N_SAMPLE_POINTS/2)
-	//{
-	//i1 = 2*i;
-	//i2 = i1+1;
-	////if(N_SAMPLE_POINTS<=16)
-	////SPEC_BIN_MAG_ARRAY[i] = FREQ_MAG_ARRAY[i];
-	////else
-	//SPEC_BIN_MAG_ARRAY[i] = ((FREQ_MAG_ARRAY[i1]+FREQ_MAG_ARRAY[i2])/2);
-	////if(SPEC_BIN_MAG_ARRAY[i]<0) SPEC_BIN_MAG_ARRAY[i]=0;
-	//}
 
-	//Lcd4_Clear();
+	Lcd4_Clear();
 	
-	//Lcd4_Set_Cursor(1,0);
-	//sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[0],(int)PRINT_ARRAY[1*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[2*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
-	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[0],PRINT_ARRAY[1*PRINT_ARRAY_STEP],PRINT_ARRAY[2*PRINT_ARRAY_STEP],PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
-	//Lcd4_Write_String(lcdStringBuff);
+	Lcd4_Set_Cursor(1,0);
+	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[0],(int)PRINT_ARRAY[1*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[2*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
+	sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[0],PRINT_ARRAY[1*PRINT_ARRAY_STEP],PRINT_ARRAY[2*PRINT_ARRAY_STEP],PRINT_ARRAY[3*PRINT_ARRAY_STEP]);//"%d %d %d %d" //"%ld %ld %ld %ld"
+	Lcd4_Write_String(lcdStringBuff);
 
-	//Lcd4_Set_Cursor(2,0);
-	//sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[4*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[5*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[6*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
-	//sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[4*PRINT_ARRAY_STEP],PRINT_ARRAY[5*PRINT_ARRAY_STEP],PRINT_ARRAY[6*PRINT_ARRAY_STEP],PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
-	//Lcd4_Write_String(lcdStringBuff);
-	
-	//Lcd4_Set_Cursor(1,0);
-	//sprintf(lcdStringBuff,"MAX : %ld  %d",maxV,analogTimeBuff[0]);
-	//Lcd4_Write_String(lcdStringBuff);
+	Lcd4_Set_Cursor(2,0);
+	sprintf(lcdStringBuff,"%d %d %d %d",(int)PRINT_ARRAY[4*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[5*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[6*PRINT_ARRAY_STEP],(int)PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
+	sprintf(lcdStringBuff,"%d %d %d %d",PRINT_ARRAY[4*PRINT_ARRAY_STEP],PRINT_ARRAY[5*PRINT_ARRAY_STEP],PRINT_ARRAY[6*PRINT_ARRAY_STEP],PRINT_ARRAY[7*PRINT_ARRAY_STEP]);
+	Lcd4_Write_String(lcdStringBuff);
 
-	//Lcd4_Set_Cursor(2,0);
-	//sprintf(lcdStringBuff,"MIN : %ld  %d",minV,analogTimeBuff[7]);
-	//Lcd4_Write_String(lcdStringBuff);
 
 }
 
@@ -379,18 +347,17 @@ int main(void)
 {
 
 	PORT_Config();
+	
 	timerConfig();
 	initDataTables();
-	//clearDot();
 	//resetToInitial();
-	//Lcd4_Init();
+	Lcd4_Init();
 
 	//set_sleep_mode(SLEEP_MODE_IDLE);
 	//sleep_enable();
 	while(1)
 	{
-		adcConfig();
-		//resetToInitial();
+		resetToInitial();
 		
 		Sampling();
 		//testSampling();
@@ -402,9 +369,10 @@ int main(void)
 		
 		//TransferData();
 		
-		DrawInDot();
+		//DrawInDot();
 		//_delay_ms(200);
 		//clearDot();
+		//counter++;
 	}
 
 }
