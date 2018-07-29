@@ -78,7 +78,8 @@ void draw(){
 	for(k=0;k<DOT_LOOP_NO;k++){
 		for(i=0;i<N;i++)
 		{
-			ROW = i;
+			ROW &= 0xF0;
+			ROW |= i;
 			if(symbol[i]<=0x0F){
 				GREEN_COLM = ~(symbol[i]);
 				RED_COLM = OFF_FULL_COLM;
@@ -95,7 +96,7 @@ void draw(){
 
 void clearDot()
 {
-	ROW = ON_FULL_ROW;
+	ROW |= (ON_FULL_ROW & 0x0F);
 	GREEN_COLM = OFF_FULL_COLM;
 	RED_COLM = OFF_FULL_COLM;
 }
