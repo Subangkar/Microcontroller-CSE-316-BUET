@@ -123,13 +123,7 @@
     <Compile Include="Basic.h">
       <SubType>compile</SubType>
     </Compile>
-    <Compile Include="DFT.h">
-      <SubType>compile</SubType>
-    </Compile>
     <Compile Include="DotMatrix.h">
-      <SubType>compile</SubType>
-    </Compile>
-    <Compile Include="lcd.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="main.c">
